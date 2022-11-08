@@ -25,33 +25,42 @@ class World {
       }
     }
   }
+  // Returns true if the given coordinates are within the bounds of the world.
   isOutOfBounds = function(x,y) {
     return x > this.size || y > this.size || x < 0 || y < 0;
   }
+  // Returns true if a road exists at the given coordinates.
   isRoad = function(x,y) {
     if (this.isOutOfBounds(x,y)) return false; 
     return this.columns[y][x] === -1;
   }
+  // Returns true if the park is at the given coordinates.
   isPark = function(x,y) {
     if (this.isOutOfBounds(x,y)) return false;
     return this.columns[y][x] === -2;
   }
+  // Returns true if the given coordinates point to a construction lot.
   isLot = function(x,y) {
     if (this.isOutOfBounds(x,y) || this.isRoad(x,y) || this.isPark(x,y)) return false;
     return true;
   }
+  // Returns true if the given coordinates point to an empty construction lot.
   isEmptyLot = function(x,y) {
     if (!this.isLot(x,y)) return false;
     return this.columns[y][x] === null;
   }
+  // Returns true if a building exsists at the given coordinates.
   isBuilding = function(x,y) {
     if (!this.isLot(x,y)) return false;
     return this.columns[y][x] !== null;
   }
+  // Returns the mesh of the building at the given coordinates, or null if no building exists there.
   getBuildingAt = function(x,y) {
     if (!this.isBuilding(x,y)) return null;
     return this.columns[y][x];
   }
+  // Places a building mesh at the given coordinates, if they are valid. 
+  // Returns true on success, or false on failure.
   setBuildingAt = function(building,x,y) {
     if (this.isEmptyLot(x,y)) {
       this.columns[y][x] = building;
@@ -60,6 +69,7 @@ class World {
       return false;
     }
   }
+  // Returns an array containing the meshes of all the cells in the world (IE. the ground meshes).
   getCellMeshes = function() {
     const lotMaterial = new THREE.MeshLambertMaterial({color: 0x404060});
     const roadMaterial = new THREE.MeshLambertMaterial({color: 0x202020});
@@ -86,6 +96,7 @@ class World {
     }
     return worldMeshes;
   }
+  // Returns an array containing the meshes of all buildings in the world.
   getBuildingMeshes = function() {
     let buildingMeshes = [];
     for (let y = 0; y < this.size; y++) {
