@@ -1,20 +1,24 @@
 // Controller for index.html
 
-
 // Scene
-
 const scene = new THREE.Scene();
+scene.background = new THREE.Color(0xF8F8F8);
+
+// container for scene
+const container = document.getElementById('canvas');
+console.log(container.offsetWidth);
 
 // Camera
 
-const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+const camera = new THREE.PerspectiveCamera(75, container.offsetWidth / container.offsetWidth, 0.1, 1000);
 camera.position.set(0, 2, 10);
 
 // Renderer
 
 const renderer = new THREE.WebGLRenderer();
-renderer.setSize(window.innerWidth, window.innerHeight);
-document.body.appendChild(renderer.domElement);
+
+renderer.setSize(container.offsetWidth , container.offsetWidth);
+container.appendChild(renderer.domElement);
 
 // Lights
 

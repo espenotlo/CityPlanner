@@ -1,1 +1,108 @@
-body { margin: 0; }
+:root {
+    --main-bg-color: #F8F8F8;
+    --border-color: #00b4d8;
+}
+body { 
+    margin-right: 1rem;
+    background-color: var(--main-bg-color); 
+}
+h1{
+    grid-area: 1 / 1 / 2 / 4;
+    margin: 0 0 0 0;
+    padding: 0.5rem;
+    text-align: center;
+    border: 2px solid var(--border-color);
+    border-radius: 0.5rem 0.5rem 0 0 ; */
+
+}
+input{
+    cursor: pointer;
+}
+
+button{
+    cursor: pointer;
+    height: 2rem;
+    margin-bottom: 0.5rem;
+}
+button:hover{
+    background-color: #3072FA;
+}
+
+select{
+    box-sizing: border-box;
+    width: calc(100% - 8rem);
+    margin: 0 4rem 0 4rem;
+}
+
+hr{
+    border: 1px solid var(--border-color);
+    width: 100%;
+}
+
+#container{
+    display: flex; 
+    width: fit-content;
+}
+
+#canvas{
+    grid-area: 2 / 3 / 4 / 4;
+    border-color: var(--border-color);
+    border-width: 0 2px 2px 0;
+    border-style: solid;
+    border-radius: 0 0 0.5rem 0 ;
+}
+#editMode{
+    display: flex;
+    flex-direction: column;
+}
+#buttonsContainer{
+    display: flex;
+    flex-direction: column;
+    padding: 0 0.5rem 0 0.5rem;
+}
+
+#settingsContainer{
+    grid-area: 2 / 1 / 4 / 2;
+}
+#inputs{
+    grid-area: 2 / 2 / 4 / 3;
+    background-color: #F3F3F5;
+    text-align: center;
+    border-color: var(--border-color);
+    border-width: 0 2px 2px 0;
+    border-style: solid;
+}
+#menu{
+    height: 100%;   
+}
+
+#settingsContainer{
+    border-radius: 0 0 0 0.5rem;
+    border-color: var(--border-color);
+    border-width: 0 2px 2px 2px;
+    border-style: solid;
+}
+
+#settings > p {
+    margin: 0;
+}
+
+#settings > div {
+    display: flex;
+    justify-content: center;
+    text-align: center;
+}
+
+#grid{
+    display: grid;
+    grid-template-columns: 0.2fr 0.5fr 1fr;
+    grid-template-rows: 0.2fr repeat(2, 1fr);
+    grid-column-gap: 0px;
+    grid-row-gap: 0px; 
+    max-height: 100%;
+}
+
+.menuItem{
+    color: #A0A2A6;
+    text-align: center;
+}

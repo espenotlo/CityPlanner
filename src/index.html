@@ -6,7 +6,53 @@
 		<link rel="stylesheet" href="css/style.css">
 	</head>
 	<body>
-		<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/89/three.min.js"></script>
-		<script src="js/index.js"></script>
+		<div id="grid">
+			<h1>Urban city</h1>
+				<div id="settingsContainer">
+					<div id="menu">
+						<p class="menuItem">Home</p>
+						<p class="menuItem">Edit</p>
+					</div>
+				</div>
+				<div id="inputs">
+					<div id="editMode">
+						<h3>Edit mode</h2>
+						<div id="buttonsContainer">
+							<button>Load Scene</button>
+							<button>Save Scene</button>
+							<button>Add building</button>
+							<button>Remove building</button>
+						</div>
+						<hr>
+						<h3 id="nameOfBuidling">Selected building name here</h3>
+						<div id="settings">
+							<p>Width</p>
+							<input type="range" min="1" max="100" value="50" class="slider" id="myRange" oninput="this.nextElementSibling.value = this.value">
+							<output>50</output>
+
+							<p>Height</p>
+							<input type="range" min="1" max="100" value="50" class="slider" id="myRange" oninput="this.nextElementSibling.value = this.value">
+							<output>50</output>
+
+							<p>Depth</p>
+							<div>
+								<input type="range" min="1" max="100" value="50" class="slider" id="myRange" oninput="this.nextElementSibling.value = this.value">
+								<output>50</output>
+							</div>
+
+							<p>Texture</p>
+							<select name="Texture" id="textures">
+								<option value="texture1">texture1</option>
+							</select>
+						</div>
+					</div>
+				</div>
+				<div id="canvas">
+					<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/104/three.js"></script>
+					<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/89/three.min.js"></script>
+					<script type="module" src="js/index.js"></script>
+					
+				</div>
+		</div>
 	</body>
 </html>
