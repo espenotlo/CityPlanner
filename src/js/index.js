@@ -1,6 +1,5 @@
 // Controller for index.html
 
-
 // Scene
 
 const scene = new THREE.Scene();
@@ -8,8 +7,10 @@ const scene = new THREE.Scene();
 // Camera
 
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-camera.position.set(0, 2, 10);
-
+camera.position.set(0, 6, 14);
+camera.rotation.x = -0.5;
+camera.rotation.y = -0.3;
+camera.rotation.z = -0.15;
 // Renderer
 
 const renderer = new THREE.WebGLRenderer();
@@ -26,19 +27,11 @@ const sunHelper = new THREE.PointLightHelper(sun, 1);
 scene.add(sunHelper);
 
 // Objects
-
-const worldGeometry = new THREE.PlaneGeometry(10, 10);
-
-// Materials
-
-const worldMaterial = new THREE.MeshLambertMaterial({color: 0x208020});
-
-// Meshes
-
-const world = new THREE.Mesh(worldGeometry, worldMaterial);
-world.rotateX(-1.5708);
-scene.add(world);
-
+const world = new World(11);
+let worldCellMeshes = world.getCellMeshes();
+worldCellMeshes.forEach(mesh => {
+  scene.add(mesh);
+});
 // Animation
 
 function animate() {
