@@ -25,6 +25,12 @@ scene.add(sun);
 const sunHelper = new THREE.PointLightHelper(sun, 1);
 scene.add(sunHelper);
 
+// Global illumination
+// TODO - Might mess up the calculations in later tasks,
+//  but added it for better view, due to pointLight not "bouncing"
+const light = new THREE.AmbientLight( 0x404040 );
+scene.add( light );
+
 // Objects
 const world = new World(11);
 let worldCellMeshes = world.getCellMeshes();
@@ -37,18 +43,21 @@ worldCellMeshes.forEach(mesh => {
 const buildManager = new BuildManager(scene, world);
 
 // Materials
-const material1 = new THREE.MeshLambertMaterial( {color: 0x00ffff} );
-const material2 = new THREE.MeshBasicMaterial( {color: 0x00ff00} );
-const material3 = new THREE.MeshBasicMaterial( {color: 0x00ff00} );
-const material4 = new THREE.MeshBasicMaterial( {color: 0x00ff00} );
+const brown = new THREE.MeshLambertMaterial( {color: 0x45290a} );
+const brick = new THREE.MeshLambertMaterial( {color: 0xf85321b} );
+const darkGrey = new THREE.MeshLambertMaterial( {color: 0x1f1e1e} );
+const lightGrey = new THREE.MeshLambertMaterial( {color: 0x737070} );
 
-const materials = [material1, material2, material3, material4]
-
-const building1 = new Building(1, 1, 1, material1);
-const building2 = new Building(1, 2, 1, material1);
+const building1 = new Building(1, 1, 1, brown);
+const building2 = new Building(1, 2, 1, brick);
+const building3 = new Building(1, 2, 1, darkGrey);
+const building4 = new Building(2, 2, 2, lightGrey);
 
 buildManager.addBuilding(building1, 0, 0);
 buildManager.addBuilding(building2, 1, 0);
+buildManager.addBuilding(building3, 5, 2);
+buildManager.addBuilding(building4, 9, 8);
+
 
 
 // Animation
