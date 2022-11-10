@@ -4,6 +4,7 @@
 // Scene
 
 const scene = new THREE.Scene();
+const buildManager = new BuildManager(scene);
 
 // Camera
 
