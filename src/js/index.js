@@ -58,7 +58,7 @@ buildManager.addBuilding(building1, 0, 0);
 buildManager.addBuilding(building2, 1, 0);
 buildManager.addBuilding(building3, 5, 2);
 buildManager.addBuilding(building4, 9, 8);
-buildManager.addBuilding(building5, 8, 10);
+buildManager.addBuilding(building5, 8, 11);
 
 // Animation
 

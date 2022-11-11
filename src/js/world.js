@@ -27,11 +27,11 @@ class World {
   }
   // Returns true if the given coordinates are within the bounds of the world.
   isOutOfBounds = function(x,y) {
-    return x > this.size || y > this.size || x < 0 || y < 0;
+    return x >= this.size || y >= this.size || x < 0 || y < 0;
   }
   // Returns true if a road exists at the given coordinates.
   isRoad = function(x,y) {
-    if (this.isOutOfBounds(x,y)) return false; 
+    if (this.isOutOfBounds(x,y)) return false;
     return this.columns[y][x] === -1;
   }
   // Returns true if the park is at the given coordinates.
