@@ -52,13 +52,13 @@ const building1 = new Building(1, 1, 1, brown);
 const building2 = new Building(1, 2, 1, brick);
 const building3 = new Building(1, 2, 1, darkGrey);
 const building4 = new Building(2, 2, 2, lightGrey);
+const building5 = new Building(1, 2, 1, lightGrey);
 
 buildManager.addBuilding(building1, 0, 0);
 buildManager.addBuilding(building2, 1, 0);
 buildManager.addBuilding(building3, 5, 2);
 buildManager.addBuilding(building4, 9, 8);
-
-
+buildManager.addBuilding(building5, 8, 10);
 
 // Animation
 
