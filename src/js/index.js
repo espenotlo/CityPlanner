@@ -1,4 +1,5 @@
 // Controller for index.html
+// import { OrbitControls } from "../../node_modules/three-orbit-controls/index"
 
 // Scene
 const scene = new THREE.Scene();
@@ -20,6 +21,10 @@ const renderer = new THREE.WebGLRenderer();
 renderer.setSize(container.offsetWidth , container.offsetWidth);
 container.appendChild(renderer.domElement);
 
+//Controls
+// const controls = new OrbitControls(camera, renderer.domElement);
+
+// controls.update();
 // Lights
 
 const sun = new THREE.PointLight(0xfffff0, 3, 100, 2);
@@ -47,6 +52,7 @@ scene.add(world);
 
 function animate() {
   requestAnimationFrame(animate);
+  // controls.update();
   renderer.render(scene, camera);
 }
 animate();

@@ -4,18 +4,19 @@
 		<meta charset="utf-8">
 		<title>My first three.js app</title>
 		<link rel="stylesheet" href="css/style.css">
+		<script src="js/UIControlls.js"></script>
 	</head>
 	<body>
 		<div id="grid">
 			<h1>Urban city</h1>
 				<div id="settingsContainer">
 					<div id="menu">
-						<p class="menuItem">Home</p>
-						<p class="menuItem">Edit</p>
+						<p class="menuItem menuItemSelected" id="homeButton" onclick="showHome()">Home</p>
+						<p class="menuItem" id="editButton" onclick="showEdit()">Edit</p>
 					</div>
 				</div>
 				<div id="inputs">
-					<div id="editMode">
+					<div id="editMode" class="hideItem">
 						<h3>Edit mode</h2>
 						<div id="buttonsContainer">
 							<button>Load Scene</button>
@@ -46,12 +47,14 @@
 							</select>
 						</div>
 					</div>
+					<div id="home">
+						home
+					</div>
 				</div>
 				<div id="canvas">
 					<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/104/three.js"></script>
 					<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/89/three.min.js"></script>
 					<script type="module" src="js/index.js"></script>
-					
 				</div>
 		</div>
 	</body>

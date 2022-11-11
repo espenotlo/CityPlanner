@@ -1,6 +1,7 @@
 :root {
     --main-bg-color: #F8F8F8;
     --border-color: #00b4d8;
+    --button-color: #3072FA;
 }
 body { 
     margin-right: 1rem;
@@ -12,7 +13,7 @@ h1{
     padding: 0.5rem;
     text-align: center;
     border: 2px solid var(--border-color);
-    border-radius: 0.5rem 0.5rem 0 0 ; */
+    border-radius: 0.5rem 0.5rem 0 0 ; 
 
 }
 input{
@@ -23,9 +24,11 @@ button{
     cursor: pointer;
     height: 2rem;
     margin-bottom: 0.5rem;
+    border-radius: 0.5rem 0.5rem 0.5rem 0.5rem; 
 }
 button:hover{
-    background-color: #3072FA;
+    background-color: var(--button-color);
+    border-radius: 0.5rem 0.5rem 0.5rem 0.5rem; 
 }
 
 select{
@@ -102,7 +105,22 @@ hr{
     max-height: 100%;
 }
 
+
 .menuItem{
     color: #A0A2A6;
     text-align: center;
+    cursor: pointer;
+}
+
+.menuItem:hover{
+    color: var(--button-color);
+    scale: 1.1;
+}
+.menuItemSelected{
+    color: var(--button-color);
+}
+
+
+.hideItem{
+    display: none  !important;;
 }
