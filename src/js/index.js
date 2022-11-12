@@ -1,9 +1,9 @@
 // Controller for index.html
-// import { OrbitControls } from "../../node_modules/three-orbit-controls/index"
 
 // Scene
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0xF8F8F8);
+// scene.background = new THREE.Color(0x00000);
 
 // container for scene
 const container = document.getElementById('canvas');
@@ -12,7 +12,7 @@ console.log(container.offsetWidth);
 // Camera
 
 const camera = new THREE.PerspectiveCamera(75, container.offsetWidth / container.offsetWidth, 0.1, 1000);
-camera.position.set(0, 2, 10);
+camera.position.set(0, 5, 10);
 
 // Renderer
 
@@ -22,11 +22,12 @@ renderer.setSize(container.offsetWidth , container.offsetWidth);
 container.appendChild(renderer.domElement);
 
 //Controls
-// const controls = new OrbitControls(camera, renderer.domElement);
 
-// controls.update();
+const controls = new THREE.OrbitControls(camera, renderer.domElement);
+controls.update();
+
+
 // Lights
-
 const sun = new THREE.PointLight(0xfffff0, 3, 100, 2);
 sun.position.set(10, 10, 0);
 scene.add(sun);
@@ -52,7 +53,7 @@ scene.add(world);
 
 function animate() {
   requestAnimationFrame(animate);
-  // controls.update();
+  controls.update();
   renderer.render(scene, camera);
 }
 animate();
