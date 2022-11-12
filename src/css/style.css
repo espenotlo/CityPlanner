@@ -106,6 +106,19 @@ hr{
 }
 
 
+#lightChart{
+    margin: 0 1rem 0 1rem;
+    aspect-ratio: 1/1;
+    background-color: #3072FA;
+}
+
+#heatmap{
+    margin: 0 1rem 0 1rem;
+    aspect-ratio: 1/1;
+    background-color: greenyellow;
+}
+
+
 .menuItem{
     color: #A0A2A6;
     text-align: center;
