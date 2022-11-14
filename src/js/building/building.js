@@ -10,5 +10,7 @@ class Building {
         this.heightOffset = height / 2;
         let geometry = new THREE.BoxGeometry(width - this.planeOffset, height, depth - this.planeOffset);
         this.cube = new THREE.Mesh(geometry, material);
+        this.cube.castShadow = true;
+        this.cube.receiveShadow = true;
     }
 }

@@ -3,6 +3,7 @@
 // Scene
 
 const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x68B0F8);
 // Camera
 
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
@@ -13,13 +14,22 @@ camera.rotation.z = -0.15;
 // Renderer
 
 const renderer = new THREE.WebGLRenderer();
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
 // Lights
 
-const sun = new THREE.PointLight(0xfffff0, 3, 100, 2);
-sun.position.set(10, 10, 3);
+const sun = new THREE.PointLight(0xfffff0, 250, 110, 2);
+sun.position.set(20, 100, -10);
+sun.castShadow = true;
+//Set up shadow properties for the light
+sun.shadow.mapSize.width = 1028; // default
+sun.shadow.mapSize.height = 1028; // default
+sun.shadow.camera.near = 0.5; // default
+sun.shadow.camera.far = 500; // default
+
 scene.add(sun);
 
 const sunHelper = new THREE.PointLightHelper(sun, 1);
@@ -28,8 +38,8 @@ scene.add(sunHelper);
 // Global illumination
 // TODO - Might mess up the calculations in later tasks,
 //  but added it for better view, due to pointLight not "bouncing"
-const light = new THREE.AmbientLight( 0x404040 );
-scene.add( light );
+//const light = new THREE.AmbientLight( 0x101010 );
+//scene.add( light );
 
 // Objects
 const world = new World(11);

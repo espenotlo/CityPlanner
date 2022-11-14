@@ -87,6 +87,8 @@ class World {
           cellMaterial = parkMaterial;
         }
         let mesh = new THREE.Mesh(cellGeometry, cellMaterial);
+        mesh.castShadow = true;
+        mesh.receiveShadow = true;
         mesh.position.x = x;
         mesh.position.y = 0;
         mesh.position.z = y;
