@@ -1,4 +1,6 @@
-class BuildManager {
+import { Vector3 } from "three";
+import { World } from "../world.js";
+export class BuildManager {
     scene;
     world;
     index;
@@ -15,7 +17,7 @@ class BuildManager {
     checkValidPosition(building, positionX, positionY, width, depth) {
         for (let x = positionX; x < (positionX + width); x++){
             for (let y = positionY; y < (positionY + depth); y++){
-                if(!world.isEmptyLot(x,y))
+                if(!this.world.isEmptyLot(x,y))
                 {
                     return false;
                 }
@@ -31,9 +33,9 @@ class BuildManager {
         if (this.checkValidPosition(building, positionX, positionY, width, depth)) {
 
             //Defines world position for object in scene
-            let positionZ = building.heightOffset;
-            let positionXOffset = positionX + (width - 1) / 2;
-            let positionYOffset = positionY + (depth - 1) / 2;
+            let positionZ = building.heightOffset * 10;
+            let positionXOffset = (positionX + (width - 1) / 2) * 10 + this.world.posOffset;
+            let positionYOffset = (positionY + (depth - 1) / 2) * 10 + this.world.posOffset;
             building.cube.position.set(positionXOffset, positionZ, positionYOffset);
             this.scene.add(building.cube);
 

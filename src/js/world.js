@@ -1,7 +1,9 @@
-class World {
-  
+import * as THREE from 'three';
+
+export class World {
   //Creates a world represented by a grid structure. row size and column size defined by parameter 'size'.
   constructor(size) {
+    this.posOffset = -(size-1)*5;
     this.size = size;
     this.columns = [];
     for (let y = 0; y < size; y++) {
@@ -71,10 +73,13 @@ class World {
   }
   // Returns an array containing the meshes of all the cells in the world (IE. the ground meshes).
   getCellMeshes = function() {
-    const lotMaterial = new THREE.MeshLambertMaterial({color: 0x404060});
-    const roadMaterial = new THREE.MeshLambertMaterial({color: 0x202020});
-    const parkMaterial = new THREE.MeshLambertMaterial({color: 0x207020});
-    let cellGeometry = new THREE.PlaneGeometry(1,1);
+    const lotMaterial = new THREE.MeshPhongMaterial({color: 0x404060});
+    lotMaterial.shininess = 1;
+    const roadMaterial = new THREE.MeshPhongMaterial({color: 0x202020});
+    roadMaterial.shininess = 5;
+    const parkMaterial = new THREE.MeshPhongMaterial({color: 0x207020});
+    parkMaterial.shininess = 0;
+    let cellGeometry = new THREE.PlaneGeometry(10,10);
     let worldMeshes = [];
     for (let y = 0; y < this.size; y++) {
       for (let x = 0; x < this.size; x++) {
@@ -87,11 +92,11 @@ class World {
           cellMaterial = parkMaterial;
         }
         let mesh = new THREE.Mesh(cellGeometry, cellMaterial);
-        mesh.castShadow = true;
         mesh.receiveShadow = true;
-        mesh.position.x = x;
+        mesh.castShadow = true;
+        mesh.position.x = (x*10) + this.posOffset;
         mesh.position.y = 0;
-        mesh.position.z = y;
+        mesh.position.z = (y*10) + this.posOffset;
         mesh.rotateX(-1.5708);
         worldMeshes.push(mesh);
       }
@@ -109,5 +114,9 @@ class World {
       }
     }
     return buildingMeshes;
+  }
+
+  getWorldPosAt = function(x,y) {
+    console.dir(this.getCellMeshes()[y*this.size + x].position);
   }
 }

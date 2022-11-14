@@ -1,78 +1,163 @@
+import * as THREE from 'three';
+import { OrbitControls } from 'https://unpkg.com/three@0.146.0/examples/jsm/controls/OrbitControls.js';
+import { Sky } from 'https://unpkg.com/three@0.146.0/examples/jsm/objects/Sky.js';
+
+import { World } from './world.js';
+import { BuildManager } from './building/build_manager.js';
+import { Building } from './building/building.js';
+import { DirectionalLightHelper, Mesh, MeshPhongMaterial, SphereGeometry } from 'three';
+
 // Controller for index.html
 
-// Scene
+let camera, scene, renderer;
+let sky, sun, sunlight, ambience, world, buildManager;
+let time = 8;
 
-const scene = new THREE.Scene();
-scene.background = new THREE.Color(0x68B0F8);
-// Camera
+init();
 
-const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-camera.position.set(0, 6, 14);
-camera.rotation.x = -0.5;
-camera.rotation.y = -0.3;
-camera.rotation.z = -0.15;
-// Renderer
+function initWorld() {
+  let planeGeo = new SphereGeometry(1000);
+  planeGeo.scale(1,0.0005,1);
+  let planeMat = new MeshPhongMaterial({color: 0x806050});
+  planeMat.shininess = 0;
+  let plane = new Mesh(planeGeo, planeMat);
+  plane.position.set(0,-1,0);
+  plane.castShadow = true;
+  plane.receiveShadow = true;
+  scene.add(plane);
 
-const renderer = new THREE.WebGLRenderer();
-renderer.shadowMap.enabled = true;
-renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-renderer.setSize(window.innerWidth, window.innerHeight);
-document.body.appendChild(renderer.domElement);
+  world = new World(11);
+  let worldCellMeshes = world.getCellMeshes();
+  worldCellMeshes.forEach(mesh => {
+    scene.add(mesh);
+  });
+}
 
-// Lights
+function initBuildings() {
+  buildManager = new BuildManager(scene, world);
+  // Materials
+  const brown = new THREE.MeshPhongMaterial( {color: 0x45290a} );
+  const brick = new THREE.MeshPhongMaterial( {color: 0xf85321b} );
+  const darkGrey = new THREE.MeshPhongMaterial( {color: 0x1f1e1e} );
+  const lightGrey = new THREE.MeshPhongMaterial( {color: 0x737070} );
 
-const sun = new THREE.PointLight(0xfffff0, 250, 110, 2);
-sun.position.set(20, 100, -10);
-sun.castShadow = true;
-//Set up shadow properties for the light
-sun.shadow.mapSize.width = 1028; // default
-sun.shadow.mapSize.height = 1028; // default
-sun.shadow.camera.near = 0.5; // default
-sun.shadow.camera.far = 500; // default
+  // Buildings
+  const building1 = new Building(1, 1, 1, brown);
+  const building2 = new Building(1, 2, 1, brick);
+  const building3 = new Building(1, 2, 1, darkGrey);
+  const building4 = new Building(2, 2, 2, lightGrey);
+  const building5 = new Building(1, 2, 1, lightGrey);
 
-scene.add(sun);
+  buildManager.addBuilding(building1, 0, 0);
+  buildManager.addBuilding(building2, 1, 0);
+  buildManager.addBuilding(building3, 5, 1);
+  buildManager.addBuilding(building4, 9, 8);
+  buildManager.addBuilding(building5, 8, 10);
+}
 
-const sunHelper = new THREE.PointLightHelper(sun, 1);
-scene.add(sunHelper);
+function initSky() {
 
-// Global illumination
-// TODO - Might mess up the calculations in later tasks,
-//  but added it for better view, due to pointLight not "bouncing"
-//const light = new THREE.AmbientLight( 0x101010 );
-//scene.add( light );
+  // Add Sky
+  sky = new Sky();
+  sky.scale.setScalar( 450000 );
+  scene.add( sky );
 
-// Objects
-const world = new World(11);
-let worldCellMeshes = world.getCellMeshes();
-worldCellMeshes.forEach(mesh => {
-  scene.add(mesh);
-});
+  sun = new THREE.Vector3();
+  sunlight = new THREE.DirectionalLight(0xfffff0, 1);
 
-// Build manager
+  //Set up shadow properties for the light
+  sunlight.castShadow = true;
+  const d = 100;
+  sunlight.shadow.camera.left = -d;
+  sunlight.shadow.camera.right = d;
+  sunlight.shadow.camera.top = d;
+  sunlight.shadow.camera.bottom = -d;
+  sunlight.shadow.mapSize.width = 512;
+  sunlight.shadow.mapSize.height = 512;
+  sunlight.shadow.camera.near = 0.5;
+  sunlight.shadow.camera.far = 1000;
+  scene.add(sunlight);  
 
-const buildManager = new BuildManager(scene, world);
+  let sunlightHelper = new DirectionalLightHelper(sunlight);
+  scene.add(sunlightHelper);
 
-// Materials
-const brown = new THREE.MeshLambertMaterial( {color: 0x45290a} );
-const brick = new THREE.MeshLambertMaterial( {color: 0xf85321b} );
-const darkGrey = new THREE.MeshLambertMaterial( {color: 0x1f1e1e} );
-const lightGrey = new THREE.MeshLambertMaterial( {color: 0x737070} );
+  //Global illumination
+  ambience = new THREE.HemisphereLight( 0xffffff, 0xffffff, 0.05 ); 
+  scene.add( ambience );
 
-const building1 = new Building(1, 1, 1, brown);
-const building2 = new Building(1, 2, 1, brick);
-const building3 = new Building(1, 2, 1, darkGrey);
-const building4 = new Building(2, 2, 2, lightGrey);
-const building5 = new Building(1, 2, 1, lightGrey);
+  // Sky controller:
+  const effectController = {
+    turbidity: 20,
+    rayleigh: 1,
+    mieCoefficient: 0.005,
+    mieDirectionalG: 0.7,
+    elevation: -Math.cos(time/3.82) * 40 + 10,
+    azimuth: 180 - 180 * time / 12,
+    exposure: renderer.toneMappingExposure
+  };
 
-buildManager.addBuilding(building1, 0, 0);
-buildManager.addBuilding(building2, 1, 0);
-buildManager.addBuilding(building3, 5, 2);
-buildManager.addBuilding(building4, 9, 8);
-buildManager.addBuilding(building5, 8, 11);
+  function skyChanged() {
+    const uniforms = sky.material.uniforms;
+    uniforms[ 'turbidity' ].value = effectController.turbidity;
+    uniforms[ 'rayleigh' ].value = effectController.rayleigh;
+    uniforms[ 'mieCoefficient' ].value = effectController.mieCoefficient;
+    uniforms[ 'mieDirectionalG' ].value = effectController.mieDirectionalG;
+
+    const phi = THREE.MathUtils.degToRad( 90 - effectController.elevation );
+    const theta = THREE.MathUtils.degToRad( effectController.azimuth );
+
+    sun.setFromSphericalCoords( 1, phi, theta );
+    sunlight.position.setFromSphericalCoords(100, phi, theta);
+    uniforms[ 'sunPosition' ].value.copy( sun );
+
+    renderer.toneMappingExposure = effectController.exposure;
+    renderer.render( scene, camera );
+  }
+  skyChanged();
+}
+
+function init() {
+  camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight, 1, 2000000 );
+  camera.position.set(75, 75, 75);
+
+  scene = new THREE.Scene();
+
+  const helper = new THREE.GridHelper( 110, 1, 0xffffff, 0xffffff );
+  scene.add( helper );
+
+  renderer = new THREE.WebGLRenderer();
+  renderer.setPixelRatio( window.devicePixelRatio );
+  renderer.setSize( window.innerWidth, window.innerHeight );
+  renderer.outputEncoding = THREE.sRGBEncoding;
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 0.5;
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  document.body.appendChild( renderer.domElement );
+
+  // Camera controller
+  const controls = new OrbitControls( camera, renderer.domElement );
+  controls.maxPolarAngle = Math.PI / 2.1;
+  controls.enableZoom = true;
+  controls.enablePan = false;
+
+  initSky();
+  initWorld();
+  initBuildings();
+
+  window.addEventListener( 'resize', onWindowResize );
+}
+
+function onWindowResize() {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+
+  renderer.setSize( window.innerWidth, window.innerHeight );
+}
 
 // Animation
-
 function animate() {
+  ambience = null;
   requestAnimationFrame(animate);
   renderer.render(scene, camera);
 }
