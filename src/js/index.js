@@ -8,10 +8,11 @@ import { Building } from './building/building.js';
 import { DirectionalLightHelper, Mesh, MeshPhongMaterial, SphereGeometry } from 'three';
 
 // Controller for index.html
-
 let camera, scene, renderer;
 let sky, sun, sunlight, ambience, world, buildManager;
 let time = 8;
+let speed = 1;
+let skyChanged, timeChanged;
 
 init();
 
@@ -96,7 +97,12 @@ function initSky() {
     exposure: renderer.toneMappingExposure
   };
 
-  function skyChanged() {
+  timeChanged = function() {
+    effectController.elevation = -Math.cos(time/3.82) * 40 + 10;
+    effectController.azimuth = 180 - 180 * time / 12;
+  }
+
+  skyChanged = function() {
     const uniforms = sky.material.uniforms;
     uniforms[ 'turbidity' ].value = effectController.turbidity;
     uniforms[ 'rayleigh' ].value = effectController.rayleigh;
@@ -157,7 +163,9 @@ function onWindowResize() {
 
 // Animation
 function animate() {
-  ambience = null;
+  time+=0.01 * speed;
+  timeChanged();
+  skyChanged();
   requestAnimationFrame(animate);
   renderer.render(scene, camera);
 }
