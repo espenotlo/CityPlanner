@@ -13,6 +13,10 @@ let sky, sun, sunlight, ambience, world, buildManager;
 let time = 8;
 let speed = 1;
 let skyChanged, timeChanged;
+let passTime = true;
+
+//container for the scene
+const container = document.getElementById('canvas');
 
 init();
 
@@ -123,7 +127,7 @@ function initSky() {
 }
 
 function init() {
-  camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight, 1, 2000000 );
+  camera = new THREE.PerspectiveCamera( 60, container.offsetWidth / container.offsetHeight, 1, 2000000 );
   camera.position.set(75, 75, 75);
 
   scene = new THREE.Scene();
@@ -133,13 +137,13 @@ function init() {
 
   renderer = new THREE.WebGLRenderer();
   renderer.setPixelRatio( window.devicePixelRatio );
-  renderer.setSize( window.innerWidth, window.innerHeight );
+  renderer.setSize( container.offsetWidth, container.offsetHeight );
   renderer.outputEncoding = THREE.sRGBEncoding;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 0.5;
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-  document.body.appendChild( renderer.domElement );
+  document.getElementById('canvas').appendChild( renderer.domElement );
 
   // Camera controller
   const controls = new OrbitControls( camera, renderer.domElement );
@@ -163,10 +167,27 @@ function onWindowResize() {
 
 // Animation
 function animate() {
-  time+=0.01 * speed;
+  if(passTime){
+    time+=0.01 * speed;
+  }
   timeChanged();
   skyChanged();
   requestAnimationFrame(animate);
   renderer.render(scene, camera);
 }
 animate();
+
+export function toggleAnimation() {
+  passTime = !passTime;
+  
+  document.getElementById('timeOfDay').classList.toggle('grayOut')
+
+}
+window.toggleAnimation = toggleAnimation;
+
+//Set time of day
+export function setTimeOfDay(value) {
+  time = value
+  renderer.render(scene, camera);
+}
+window.setTimeOfDay = setTimeOfDay;
