@@ -179,7 +179,6 @@ animate();
 
 export function toggleAnimation() {
   passTime = !passTime;
-  
   document.getElementById('timeOfDay').classList.toggle('grayOut')
 
 }
@@ -187,7 +186,7 @@ window.toggleAnimation = toggleAnimation;
 
 //Set time of day
 export function setTimeOfDay(value) {
-  time = value
+  time = Number(value)
   renderer.render(scene, camera);
 }
 window.setTimeOfDay = setTimeOfDay;
