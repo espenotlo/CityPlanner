@@ -5,11 +5,13 @@ import { Sky } from 'https://unpkg.com/three@0.146.0/examples/jsm/objects/Sky.js
 import { World } from './world.js';
 import { BuildManager } from './building/build_manager.js';
 import { Building } from './building/building.js';
-import { DirectionalLightHelper, Mesh, MeshPhongMaterial, SphereGeometry } from 'three';
+import { DirectionalLightHelper, Mesh, MeshPhongMaterial, Raycaster, SphereGeometry } from 'three';
 
 // Controller for index.html
 let camera, scene, renderer;
 let sky, sun, sunlight, ambience, world, buildManager;
+let mousePosition, rayCaster;
+let intersects = [];
 let time = 8;
 let speed = 1;
 let skyChanged, timeChanged;
@@ -17,6 +19,8 @@ let passTime = true;
 
 //container for the scene
 const container = document.getElementById('canvas');
+
+const worldCellGroup = new THREE.Group();
 
 init();
 
@@ -33,9 +37,11 @@ function initWorld() {
 
   world = new World(11);
   let worldCellMeshes = world.getCellMeshes();
+
   worldCellMeshes.forEach(mesh => {
-    scene.add(mesh);
+    worldCellGroup.add(mesh);
   });
+  scene.add(worldCellGroup)
 }
 
 function initBuildings() {
@@ -145,6 +151,9 @@ function init() {
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
   document.getElementById('canvas').appendChild( renderer.domElement );
 
+  mousePosition = new THREE.Vector2;
+  rayCaster = new THREE.Raycaster();
+
   // Camera controller
   const controls = new OrbitControls( camera, renderer.domElement );
   controls.maxPolarAngle = Math.PI / 2.1;
@@ -159,16 +168,16 @@ function init() {
 }
 
 function onWindowResize() {
-  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.aspect = container.offsetWidth / container.offsetHeight;
   camera.updateProjectionMatrix();
 
-  renderer.setSize( window.innerWidth, window.innerHeight );
+  renderer.setSize(container.offsetWidth, container.offsetHeight);
 }
 
 // Animation
 function animate() {
   if(passTime){
-    time+=0.01 * speed;
+    // time+=0.01 * speed;
   }
   timeChanged();
   skyChanged();
@@ -184,9 +193,81 @@ export function toggleAnimation() {
 }
 window.toggleAnimation = toggleAnimation;
 
-//Set time of day
+//Set time of day to a specific value;
 export function setTimeOfDay(value) {
   time = Number(value)
   renderer.render(scene, camera);
 }
 window.setTimeOfDay = setTimeOfDay;
+
+
+
+function getMousePosition(event){
+  intersects = [];
+
+  //calculates mouse 2d position on canvas (0,0) is center
+  const rect = renderer.domElement.getBoundingClientRect();
+  const x = event.clientX - rect.left;
+  const y = event.clientY - rect.top;
+  mousePosition.x = ( x/ renderer.domElement.offsetWidth )  * 2 - 1;
+  mousePosition.y = - ( y /renderer.domElement.offsetHeight )  * 2 + 1;
+
+
+  rayCaster.setFromCamera(mousePosition, camera);
+  intersects = rayCaster.intersectObjects(worldCellGroup.children, true);
+
+  let xPos = Math.abs(Math.round((intersects[0].point.x/10)+5));
+  let zPos = Math.abs(Math.round((intersects[0].point.z/10)+5));
+  console.log(xPos,zPos);
+  return {xPos, zPos};
+}
+
+function addBuildingOnMouseClick(event) {
+  event.preventDefault();
+  let position = getMousePosition(event);
+  const lightGrey = new THREE.MeshPhongMaterial( {color: 0x737070} );
+  buildManager.addBuilding(new Building(1, 2, 1, lightGrey), position.xPos, position.zPos);
+}
+
+
+
+function removeBuildingAtMousePosition(event){
+  intersects = [];
+
+  //calculates mouse 2d position on canvas (0,0) is center
+  const rect = renderer.domElement.getBoundingClientRect();
+  const x = event.clientX - rect.left;
+  const y = event.clientY - rect.top;
+  mousePosition.x = ( x/ renderer.domElement.offsetWidth )  * 2 - 1;
+  mousePosition.y = - ( y /renderer.domElement.offsetHeight )  * 2 + 1;
+
+
+  rayCaster.setFromCamera(mousePosition, camera);
+  intersects = rayCaster.intersectObjects(scene.children, true);
+
+  let buildingId = intersects[0].object.name;
+  
+  removeSelectedBuilding(buildingId);
+}
+
+function removeSelectedBuilding(buildingId) {
+  buildManager.removeBuilding(buildingId);
+}
+
+
+
+
+export function setMouseFunction(functionality) {
+  container.removeEventListener('mousedown',addBuildingOnMouseClick,false)
+  switch (functionality) {
+    case 'addBuilding':
+      container.addEventListener('mousedown',addBuildingOnMouseClick,false)
+      break;
+    case 'removeBuilding':
+      container.addEventListener('mousedown',removeBuildingAtMousePosition,false)
+      break;
+    default:
+      break;
+  }
+}
+window.setMouseFunction = setMouseFunction;

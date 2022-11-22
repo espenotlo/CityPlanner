@@ -37,6 +37,7 @@ export class BuildManager {
             let positionXOffset = (positionX + (width - 1) / 2) * 10 + this.world.posOffset;
             let positionYOffset = (positionY + (depth - 1) / 2) * 10 + this.world.posOffset;
             building.cube.position.set(positionXOffset, positionZ, positionYOffset);
+            building.cube.name = this.index;
             this.scene.add(building.cube);
 
             //Maps building to index, and marks all tiles with the given index
