@@ -1,16 +1,18 @@
-import { Vector3 } from "three";
+import { Vector3, Raycaster } from "three";
 import { World } from "../world.js";
 export class BuildManager {
     scene;
     world;
     index;
     map;
+    buildings;
 
     constructor(scene, world) {
         this.scene = scene;
         this.world = world;
         this.index = 1;
         this.map = new Map();
+        this.buildings = [];
     }
 
 
@@ -44,6 +46,7 @@ export class BuildManager {
             this.map.set(this.index, building);
             this.occupyTile(positionX, positionY, width, depth, this.index)
             this.index++;
+            this.buildings.push(building);
         } else {
             console.log("Cannot place building here")
         }
@@ -66,5 +69,57 @@ export class BuildManager {
                 this.world.setBuildingAt(index,x,y)
             }
         }
+    }
+
+    getLandmark() {
+        for (let i = 0; i < this.buildings.length; i++) {
+            if (this.buildings[i].isLandmark) {
+                return this.buildings[i];
+            }
+        }
+        return null;
+    }
+
+    // Returns the degree of visibility (0-1) from given building to the landmark.
+    getVisibilityToLandmark(building) {
+        let landmark = this.getLandmark();
+
+        let x = building.cube.position.x;
+        let y = building.cube.position.y;
+        let z = building.cube.position.z;
+
+        let buildmeshes = [];
+        this.buildings.forEach(function(building) {
+            buildmeshes.push(building.cube);
+        });
+
+        let hits = 0.0;
+        let total = 0.0;
+        let raycaster = new Raycaster();
+        let intersects;
+        let origin = new Vector3();
+        let direction = new Vector3();
+
+        // For every position of the building - cast a ray towards the target. 
+        for (let y1 = y - (building.heightOffset * 10); y1 <= y + (building.heightOffset * 10); y1+= 2) {
+            for (let x1 = x - (building.width * 5); x1 <= x + (building.width * 5); x1+= building.depth * 5) {
+                for (let z1 = z - (building.depth * 5); z1 <= z + (building.depth * 5); z1+= building.depth * 5) {
+                    origin.set(x1,y1,z1);
+                    let targetHeight = (landmark.cube.position.y + landmark.heightOffset) * (y1 / (y+building.heightOffset))
+
+                    raycaster.set(origin, direction.subVectors(new Vector3(landmark.cube.position.x, targetHeight, landmark.cube.position.z), origin).normalize());
+            
+                    intersects = raycaster.intersectObjects(buildmeshes, false);
+            
+                    if (intersects.length > 0) {
+                        if (intersects[0].object.position === landmark.cube.position) {
+                            hits++;
+                        }
+                    }
+                    total++;
+                }
+            }
+        }
+        return hits / total;
     }
 }

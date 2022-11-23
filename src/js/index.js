@@ -57,7 +57,7 @@ function initBuildings() {
   const lightGrey = new THREE.MeshPhongMaterial( {color: 0x737070} );
 
   // Buildings
-  const building1 = new Building(1, 1, 1, brown);
+  const building1 = new Building(1, 1, 1, brown, true);
   const building2 = new Building(1, 2, 1, brick);
   const building3 = new Building(1, 2, 1, darkGrey);
   const building4 = new Building(2, 2, 2, lightGrey);
@@ -311,7 +311,21 @@ function uploadFileAndLoad(){
   
 }
 
+function checkLandmarkVisibility(event) {
+  intersects = [];
 
+  //calculates mouse 2d position on canvas (0,0) is center
+  const rect = renderer.domElement.getBoundingClientRect();
+  const x = event.clientX - rect.left;
+  const y = event.clientY - rect.top;
+  mousePosition.x = ( x/ renderer.domElement.offsetWidth )  * 2 - 1;
+  mousePosition.y = - ( y /renderer.domElement.offsetHeight )  * 2 + 1;
+
+  rayCaster.setFromCamera(mousePosition, camera);
+  intersects = rayCaster.intersectObjects(scene.children, true);
+  let building = buildManager.map.get(intersects[0].object.name);
+  let visibility = buildManager.getVisibilityToLandmark(building);
+}
 
 
 export function selectedEditMode(functionality) {
@@ -326,7 +340,7 @@ export function selectedEditMode(functionality) {
       container.addEventListener('mousedown',addBuildingOnMouseClick,false)
       break;
     case 'removeBuilding':
-      container.addEventListener('mousedown',removeBuildingAtMousePosition,false)
+      container.addEventListener('mousedown',removeBuildingAtMousePosition,false);
       break;
     case 'toggleAnimation':
       toggleAnimation();
