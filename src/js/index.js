@@ -186,12 +186,11 @@ function animate() {
 }
 animate();
 
-export function toggleAnimation() {
+function toggleAnimation() {
   passTime = !passTime;
   document.getElementById('timeOfDay').classList.toggle('grayOut');
 
 }
-window.toggleAnimation = toggleAnimation;
 
 
 //Set time of day to a specific value;
@@ -283,10 +282,10 @@ function removeSelectedBuilding(buildingId) {
 }
 
 
-export function setMouseFunction(functionality) {
+export function selectedEditMode(functionality) {
   //TODO: probably a better way to remove the listeners
   container.removeEventListener('mousedown',addBuildingOnMouseClick,false);
-  container.addEventListener('mousedown',removeBuildingAtMousePosition,false);
+  container.removeEventListener('mousedown',removeBuildingAtMousePosition,false);
 
   document.getElementById('addBuildingSettings').classList.add('grayOut');
   switch (functionality) {
@@ -297,8 +296,14 @@ export function setMouseFunction(functionality) {
     case 'removeBuilding':
       container.addEventListener('mousedown',removeBuildingAtMousePosition,false)
       break;
+    case 'toggleAnimation':
+      toggleAnimation();
+    case 'loadScene':
+      //TODO: run load function here
+    case 'saveScene':
+      //TODO: run save function here
     default:
       break;
   }
 }
-window.setMouseFunction = setMouseFunction;
+window.selectedEditMode = selectedEditMode;

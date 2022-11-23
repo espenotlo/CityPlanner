@@ -33,9 +33,9 @@
 						<div id="buttonsContainer">
 							<button>Load Scene</button>
 							<button>Save Scene</button>
-							<button onclick="setMouseFunction('addBuilding')">Add building</button>
-							<button onclick="setMouseFunction('removeBuilding')">Remove building</button>
-							<button onclick="toggleAnimation()">Start/stop animation</button>
+							<button onclick="selectedEditMode('addBuilding')">Add building</button>
+							<button onclick="selectedEditMode('removeBuilding')">Remove building</button>
+							<button onclick="selectedEditMode('toggleAnimation')">Start/stop animation</button>
 							<div id="timeOfDay" class="grayOut">
 								<p>Time of day</p>
 								<input type="range" min="0" max="24" value="12" class="slider" oninput="setTimeOfDay(this.value);this.nextElementSibling.value = this.value +':00'" onload="this.nextElementSibling.value = this.value +':00'">
