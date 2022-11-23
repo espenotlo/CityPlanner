@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'https://unpkg.com/three@0.146.0/examples/jsm/controls/OrbitControls.js';
+import { GLTFExporter } from 'https://unpkg.com/three@0.146.0/examples/jsm/exporters/GLTFExporter.js';
 import { Sky } from 'https://unpkg.com/three@0.146.0/examples/jsm/objects/Sky.js';
 
 import { World } from './world.js';
@@ -21,6 +22,9 @@ let passTime = true;
 const container = document.getElementById('canvas');
 
 const worldCellGroup = new THREE.Group();
+
+//link for downloading
+const link = document.createElement('a');
 
 init();
 
@@ -281,6 +285,34 @@ function removeSelectedBuilding(buildingId) {
   buildManager.removeBuilding(buildingId);
 }
 
+function saveScene() {
+  const exporter = new GLTFExporter();
+  exporter.parse(
+  scene,
+	function (result) {
+    saveArrayBuffer(result, 'scene.glb')
+	},
+  {
+    binary:true
+  })
+}
+
+function saveArrayBuffer(buffer, fileName) {
+  save(new Blob([buffer],{type: 'application/octet-stream'}), fileName)
+}
+function save (blob, fileName) {
+  link.href = URL.createObjectURL(blob);
+  link.download = fileName;
+  link.click();
+}
+
+function uploadFileAndLoad(){
+  window.open('fileUpload.html','popUpWindow','height=500,width=400,left=100,top=100,resizable=yes,scrollbars=yes,toolbar=yes,menubar=no,location=no,directories=no, status=yes');
+  
+}
+
+
+
 
 export function selectedEditMode(functionality) {
   //TODO: probably a better way to remove the listeners
@@ -298,10 +330,13 @@ export function selectedEditMode(functionality) {
       break;
     case 'toggleAnimation':
       toggleAnimation();
+      break;
     case 'loadScene':
-      //TODO: run load function here
+      uploadFileAndLoad();
+      break;
     case 'saveScene':
-      //TODO: run save function here
+      saveScene();
+      break;
     default:
       break;
   }
