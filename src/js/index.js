@@ -177,7 +177,7 @@ function onWindowResize() {
 // Animation
 function animate() {
   if(passTime){
-    // time+=0.01 * speed;
+    time+=0.01 * speed;
   }
   timeChanged();
   skyChanged();
@@ -188,10 +188,11 @@ animate();
 
 export function toggleAnimation() {
   passTime = !passTime;
-  document.getElementById('timeOfDay').classList.toggle('grayOut')
+  document.getElementById('timeOfDay').classList.toggle('grayOut');
 
 }
 window.toggleAnimation = toggleAnimation;
+
 
 //Set time of day to a specific value;
 export function setTimeOfDay(value) {
@@ -218,18 +219,46 @@ function getMousePosition(event){
 
   let xPos = Math.abs(Math.round((intersects[0].point.x/10)+5));
   let zPos = Math.abs(Math.round((intersects[0].point.z/10)+5));
-  console.log(xPos,zPos);
   return {xPos, zPos};
 }
 
 function addBuildingOnMouseClick(event) {
   event.preventDefault();
+
   let position = getMousePosition(event);
-  const lightGrey = new THREE.MeshPhongMaterial( {color: 0x737070} );
-  buildManager.addBuilding(new Building(1, 2, 1, lightGrey), position.xPos, position.zPos);
+  let building = createBuilding();
+
+  buildManager.addBuilding(building, position.xPos, position.zPos);
 }
 
+function createBuilding() {
+  let settings = getBuildingSettings();
+  let material = createMaterialFromName(settings.textureOfBuilding);
 
+  return new Building(settings.widthOfBuilding, settings.heightOfBuilding, settings.depthOfBuilding, material)
+}
+
+function createMaterialFromName(name) {
+  let color;
+  switch (name) {
+    case 'brown':
+      color = {color: 0x45290a}
+      break;
+    case 'brick':
+      color = {color: 0xf85321b}
+      break;
+    case 'darkGrey':
+      color = {color: 0x1f1e1e}
+      break;
+    case 'lightGrey':
+      color = {color: 0x737070}
+      break;
+    default:
+      console.log('No valid color');
+      break;
+  }
+  return new THREE.MeshPhongMaterial(color);
+}
 
 function removeBuildingAtMousePosition(event){
   intersects = [];
@@ -240,7 +269,6 @@ function removeBuildingAtMousePosition(event){
   const y = event.clientY - rect.top;
   mousePosition.x = ( x/ renderer.domElement.offsetWidth )  * 2 - 1;
   mousePosition.y = - ( y /renderer.domElement.offsetHeight )  * 2 + 1;
-
 
   rayCaster.setFromCamera(mousePosition, camera);
   intersects = rayCaster.intersectObjects(scene.children, true);
@@ -255,12 +283,15 @@ function removeSelectedBuilding(buildingId) {
 }
 
 
-
-
 export function setMouseFunction(functionality) {
-  container.removeEventListener('mousedown',addBuildingOnMouseClick,false)
+  //TODO: probably a better way to remove the listeners
+  container.removeEventListener('mousedown',addBuildingOnMouseClick,false);
+  container.addEventListener('mousedown',removeBuildingAtMousePosition,false);
+
+  document.getElementById('addBuildingSettings').classList.add('grayOut');
   switch (functionality) {
     case 'addBuilding':
+      document.getElementById('addBuildingSettings').classList.remove('grayOut');
       container.addEventListener('mousedown',addBuildingOnMouseClick,false)
       break;
     case 'removeBuilding':

@@ -43,26 +43,32 @@
 							</div>
 						</div>
 						<hr>
-						<h3 id="nameOfBuidling">Selected building name here</h3>
-						<div id="settings">
-							<p>Width</p>
-							<input type="range" min="1" max="100" value="50" class="slider" id="" oninput="this.nextElementSibling.value = this.value">
-							<output>50</output>
+						<div id="addBuildingSettings" class="grayOut">
+							<h3 id="nameOfBuidling">Building settings</h3>
+							<div id="settings">
+								<p>Width</p>
+								<input type="range" min="1" max="4" value="1" class="slider" id="settingsWidth" oninput="this.nextElementSibling.value = this.value">
+								<output>1</output>
 
-							<p>Height</p>
-							<input type="range" min="1" max="100" value="50" class="slider" id="" oninput="this.nextElementSibling.value = this.value">
-							<output>50</output>
+								<p>Height</p>
+								<input type="range" min="1" max="10" value="2" class="slider" id="settingsHeight" oninput="this.nextElementSibling.value = this.value">
+								<output>2</output>
 
-							<p>Depth</p>
-							<div>
-								<input type="range" min="1" max="100" value="50" class="slider" id="" oninput="this.nextElementSibling.value = this.value">
-								<output>50</output>
+								<p>Depth</p>
+								<div>
+									<input type="range" min="1" max="4" value="1" class="slider" id="settingsDepth" oninput="this.nextElementSibling.value = this.value">
+									<output>1</output>
+								</div>
+
+								<p>Texture</p>
+								<select name="Texture" id="textures">
+									<option value="brown">Brown</option>
+									<option value="brick">Brick</option>
+									<option value="darkGrey">DarkGrey</option>
+									<option value="lightGrey">LightGrey</option>
+
+								</select>
 							</div>
-
-							<p>Texture</p>
-							<select name="Texture" id="textures">
-								<option value="texture1">texture1</option>
-							</select>
 						</div>
 					</div>
 					<div id="home">

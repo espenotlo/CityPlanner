@@ -24,8 +24,14 @@ function showEdit(){
     document.getElementById('editMode').classList.toggle('hideItem');
 }
 
-function getClickedPosition() {
+function getBuildingSettings() {
+    let widthOfBuilding = parseInt(document.getElementById('settingsWidth').value);
+    let heightOfBuilding = parseInt(document.getElementById('settingsHeight').value);
+    let depthOfBuilding = parseInt(document.getElementById('settingsDepth').value);
+    let textureOfBuilding = document.getElementById('textures').value;
 
+    return({widthOfBuilding, heightOfBuilding, depthOfBuilding, textureOfBuilding});    
 }
+window.getBuildingSettings = getBuildingSettings;
 
 
