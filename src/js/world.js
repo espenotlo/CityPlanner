@@ -71,6 +71,16 @@ export class World {
       return false;
     }
   }
+  // Removes a building by id.
+  removeBuilding = function(buildingId) {
+    for (let x = 0; x < this.size; x++) {
+      for (let y = 0; y < this.size; y++) {
+        if (this.columns[x][y] === buildingId) {
+          this.columns[x][y] = null;
+        }
+      }
+    }
+  }
   // Returns an array containing the meshes of all the cells in the world (IE. the ground meshes).
   getCellMeshes = function() {
     const lotMaterial = new THREE.MeshPhongMaterial({color: 0x404060});

@@ -52,6 +52,7 @@ export class BuildManager {
     removeBuilding(buildingID){
         const toBeRemoved = this.map.get(buildingID)
         if(toBeRemoved != null) {
+            this.world.removeBuilding(buildingID);
             this.scene.remove(toBeRemoved.cube);
         } else {
             console.log("Building with ID " + buildingID + " doesn't exist!")
@@ -66,6 +67,4 @@ export class BuildManager {
             }
         }
     }
-
-
 }
