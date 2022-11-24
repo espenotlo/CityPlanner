@@ -52,6 +52,7 @@ canvas{
 }
 
 #canvas{
+    position: relative;
     grid-area: 2 / 3 / 4 / 4;
     border-color: var(--border-color);
     border-width: 0 2px 2px 0;
@@ -103,12 +104,11 @@ canvas{
 #grid{
     display: grid;
     grid-template-columns: 0.2fr 0.5fr 1fr;
-    grid-template-rows: 0.2fr repeat(2, 1fr);
+    grid-template-rows: 0.1fr repeat(2, 1fr);
     grid-column-gap: 0px;
     grid-row-gap: 0px; 
     max-height: 100%;
 }
-
 
 #lightChart{
     margin: 0 1rem 0 1rem;
@@ -125,6 +125,28 @@ canvas{
     display: flex;
     flex-direction: column;
 }
+#landmarkVisibilityOverlay {
+    position: absolute;
+    z-index: 2;
+    top: 5px;
+    left: 5px;
+    background-color: #F3F3F5;;
+    padding: 1rem;
+    border: white;
+    border-radius: 0.5rem;
+}
+
+#selectedMode {
+    position: absolute;
+    z-index: 2;
+    top: 5px;
+    right: 0px;
+    background-color: #F3F3F5;;
+    padding: 1rem;
+    border: white;
+    border-radius: 0.5rem;
+}
+
 
 
 

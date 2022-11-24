@@ -325,34 +325,49 @@ function checkLandmarkVisibility(event) {
   intersects = rayCaster.intersectObjects(scene.children, true);
   let building = buildManager.map.get(intersects[0].object.name);
   let visibility = buildManager.getVisibilityToLandmark(building);
+
+  showLandmarkVisibility(visibility);
 }
 
-
+let prevValue = null;
 export function selectedEditMode(functionality) {
   //TODO: probably a better way to remove the listeners
   container.removeEventListener('mousedown',addBuildingOnMouseClick,false);
   container.removeEventListener('mousedown',removeBuildingAtMousePosition,false);
+  container.removeEventListener('mousedown',checkLandmarkVisibility,false);
 
+  hideLandmarkVisibility();
   document.getElementById('addBuildingSettings').classList.add('grayOut');
-  switch (functionality) {
-    case 'addBuilding':
-      document.getElementById('addBuildingSettings').classList.remove('grayOut');
-      container.addEventListener('mousedown',addBuildingOnMouseClick,false)
-      break;
-    case 'removeBuilding':
-      container.addEventListener('mousedown',removeBuildingAtMousePosition,false);
-      break;
-    case 'toggleAnimation':
-      toggleAnimation();
-      break;
-    case 'loadScene':
-      uploadFileAndLoad();
-      break;
-    case 'saveScene':
-      saveScene();
-      break;
-    default:
-      break;
+  if(functionality != prevValue) {
+    switch (functionality) {
+      case 'addBuilding':
+        document.getElementById('addBuildingSettings').classList.remove('grayOut');
+        container.addEventListener('mousedown',addBuildingOnMouseClick,false)
+        showCurrentMode('Add building');
+        break;
+      case 'removeBuilding':
+        container.addEventListener('mousedown',removeBuildingAtMousePosition,false);
+        showCurrentMode('Remove building');
+        break;
+      case 'toggleAnimation':
+        toggleAnimation();
+        break;
+      case 'loadScene':
+        uploadFileAndLoad();
+        break;
+      case 'saveScene':
+        saveScene();
+        break;
+      case 'checkVisibility':
+        container.addEventListener('mousedown',checkLandmarkVisibility,false);
+        showCurrentMode('Check landmark visibility');
+        break;
+      default:
+        break;
+    }
+  } else {
+    showCurrentMode('none');
   }
+  prevValue = functionality;
 }
 window.selectedEditMode = selectedEditMode;
