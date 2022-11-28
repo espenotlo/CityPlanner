@@ -139,6 +139,7 @@ export class BuildManager {
     // Returns the degree of visibility (0-1) from given building to the landmark.
     getVisibilityToLandmark(building) {
         let landmark = this.getLandmark();
+        if (building === landmark) return 1;
 
         let x = building.cube.position.x;
         let y = building.cube.position.y;
@@ -169,6 +170,8 @@ export class BuildManager {
             
                     if (intersects.length > 0) {
                         if (intersects[0].object.position === landmark.cube.position) {
+                            hits++;
+                        } else if (intersects[0].object === building.cube && intersects.length > 1 && intersects[1].object.position === landmark.cube.position) {
                             hits++;
                         }
                     }
