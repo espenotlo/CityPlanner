@@ -236,9 +236,11 @@ function addBuildingOnMouseClick(event) {
 
 function createBuilding() {
   let settings = getBuildingSettings();
+  document.getElementById("isLandmark").checked = false;
+
   let material = createMaterialFromName(settings.textureOfBuilding);
 
-  return new Building(settings.widthOfBuilding, settings.heightOfBuilding, settings.depthOfBuilding, material)
+  return new Building(settings.widthOfBuilding, settings.heightOfBuilding, settings.depthOfBuilding, material, settings.isLandmark)
 }
 
 function createMaterialFromName(name) {
@@ -371,3 +373,14 @@ export function selectedEditMode(functionality) {
   prevValue = functionality;
 }
 window.selectedEditMode = selectedEditMode;
+
+function selectLandmarkBox() {
+  if (buildManager.getLandmark() != null) {
+      document.getElementById("isLandmark").checked = false;
+      let infoText = document.getElementById("isLandmarkInfo").appendChild(document.createTextNode("Landmark already exist"));
+      setTimeout(function() {
+          infoText.remove();
+      }, 2000);
+  }
+}
+window.selectLandmarkBox = selectLandmarkBox;

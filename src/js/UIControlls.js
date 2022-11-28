@@ -28,13 +28,15 @@ function showEdit(){
     document.getElementById('editMode').classList.toggle('hideItem');
 }
 
+
 function getBuildingSettings() {
     let widthOfBuilding = parseInt(document.getElementById('settingsWidth').value);
     let heightOfBuilding = parseInt(document.getElementById('settingsHeight').value);
     let depthOfBuilding = parseInt(document.getElementById('settingsDepth').value);
     let textureOfBuilding = document.getElementById('textures').value;
+    let isLandmark = document.getElementById("isLandmark").checked
 
-    return({widthOfBuilding, heightOfBuilding, depthOfBuilding, textureOfBuilding});    
+    return({widthOfBuilding, heightOfBuilding, depthOfBuilding, textureOfBuilding, isLandmark});    
 }
 window.getBuildingSettings = getBuildingSettings;
 
@@ -74,5 +76,7 @@ function showCurrentMode(mode) {
     }
 }
 window.showCurrentMode = showCurrentMode;
+
+
 
 
