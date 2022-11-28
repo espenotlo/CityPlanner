@@ -1,4 +1,4 @@
-import { Vector3, Raycaster } from "three";
+import { Vector3, Raycaster, Mesh, BufferGeometry, BufferAttribute, MeshPhongMaterial } from "three";
 import { World } from "../world.js";
 export class BuildManager {
     scene;
@@ -6,6 +6,9 @@ export class BuildManager {
     index;
     map;
     buildings;
+    landmarkMarker;
+    defaultMarkerPos;
+    switchDirection;
 
     constructor(scene, world) {
         this.scene = scene;
@@ -13,6 +16,8 @@ export class BuildManager {
         this.index = 1;
         this.map = new Map();
         this.buildings = [];
+        this.landmarkMarker = this.getMarker();
+        this.switchDirection = false;
     }
 
 
@@ -41,6 +46,11 @@ export class BuildManager {
             building.cube.position.set(positionXOffset, positionZ, positionYOffset);
             building.cube.name = this.index;
             this.scene.add(building.cube);
+            if (building.isLandmark) {
+                this.landmarkMarker.position.set(positionXOffset, positionZ + 15, positionYOffset);
+                this.defaultMarkerPos = new Vector3(positionXOffset, positionZ + 15, positionYOffset);
+                this.scene.add(this.landmarkMarker);
+            }
 
             //Maps building to index, and marks all tiles with the given index
             this.map.set(this.index, building);
@@ -55,6 +65,7 @@ export class BuildManager {
     removeBuilding(buildingID){
         const toBeRemoved = this.map.get(buildingID)
         if(toBeRemoved != null) {
+            if (toBeRemoved.isLandmark) this.scene.remove(this.landmarkMarker);
             this.world.removeBuilding(buildingID);
             this.scene.remove(toBeRemoved.cube);
             this.buildings.splice(this.buildings.findIndex(obj => {
@@ -81,6 +92,48 @@ export class BuildManager {
             }
         }
         return null;
+    }
+
+    getMarker() {
+        const geometry = new BufferGeometry();
+        const vertices = new Float32Array([
+             1.0,  1.0,  0.3, //front
+            -1.0,  1.0,  0.3,
+             0.0, -1.0,  0.0,
+
+             -1.0,  1.0, -0.3, // back
+              1.0,  1.0, -0.3,
+              0.0, -1.0,  0.0,
+
+              1.0,  1.0, -0.3, // right
+              1.0,  1.0,  0.3,
+              0.0, -1.0,  0.0,
+
+             -1.0,  1.0,  0.3, // left
+             -1.0,  1.0, -0.3,
+              0.0, -1.0,  0.0,
+
+             -1.0,  1.0, -0.3, //top-left
+             -1.0,  1.0,  0.3,
+              1.0,  1.0,  0.3,
+
+              1.0,  1.0,  0.3, //top-right
+              1.0,  1.0, -0.3,
+             -1.0,  1.0, -0.3,
+        ]);
+        geometry.setAttribute('position', new BufferAttribute(vertices, 3));
+        const material = new MeshPhongMaterial( {color: 0x20ff20} );
+        const mesh = new Mesh(geometry, material);
+        mesh.scale.addScalar(1.5);
+        return mesh;
+    }
+
+    animateMarker() {
+        let increment = 0.05;
+        let pos = this.landmarkMarker.position;
+        if (pos.y >= this.defaultMarkerPos.y + 3 || pos.y <= this.defaultMarkerPos.y - 3) this.switchDirection = !this.switchDirection;
+        if (this.switchDirection) increment = -increment;
+        pos.set(pos.x, pos.y + increment, pos.z);
     }
 
     // Returns the degree of visibility (0-1) from given building to the landmark.

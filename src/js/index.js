@@ -183,6 +183,7 @@ function animate() {
   if(passTime){
     time+=0.01 * speed;
   }
+  buildManager.animateMarker();
   timeChanged();
   skyChanged();
   requestAnimationFrame(animate);
