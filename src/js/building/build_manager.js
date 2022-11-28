@@ -122,7 +122,7 @@ export class BuildManager {
              -1.0,  1.0, -0.3,
         ]);
         geometry.setAttribute('position', new BufferAttribute(vertices, 3));
-        const material = new MeshPhongMaterial( {color: 0x20ff20} );
+        const material = new MeshPhongMaterial( {color: 0x20ff20, shininess: 50, emissive: 0x008800} );
         const mesh = new Mesh(geometry, material);
         mesh.scale.addScalar(1.5);
         return mesh;
