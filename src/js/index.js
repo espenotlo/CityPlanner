@@ -332,6 +332,22 @@ function checkLandmarkVisibility(event) {
   showLandmarkVisibility(visibility);
 }
 
+// The level of sky-exposure at cursor location.
+function checkSkyExposure(event) {
+  intersects = [];
+
+  //calculates mouse 2d position on canvas (0,0) is center
+  const rect = renderer.domElement.getBoundingClientRect();
+  const x = event.clientX - rect.left;
+  const y = event.clientY - rect.top;
+  mousePosition.x = ( x/ renderer.domElement.offsetWidth )  * 2 - 1;
+  mousePosition.y = - ( y /renderer.domElement.offsetHeight )  * 2 + 1;
+
+  rayCaster.setFromCamera(mousePosition, camera);
+  intersects = rayCaster.intersectObjects(scene.children, true);
+  console.log(buildManager.getSkyExposure(intersects[0].point));
+}
+
 let prevValue = null;
 let prevPrevValue = null; // used to unselect current mode in button is pressed again
 export function selectedEditMode(functionality) {

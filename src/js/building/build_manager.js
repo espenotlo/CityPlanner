@@ -1,4 +1,4 @@
-import { Vector3, Raycaster, Mesh, BufferGeometry, BufferAttribute, MeshPhongMaterial } from "three";
+import { Vector3, Raycaster, Mesh, BufferGeometry, BufferAttribute, MeshPhongMaterial, OneMinusDstAlphaFactor } from "three";
 import { World } from "../world.js";
 export class BuildManager {
     scene;
@@ -177,5 +177,38 @@ export class BuildManager {
             }
         }
         return hits / total;
+    }
+
+    // Calculates the sky exposure at given point in the world.
+    getSkyExposure(point) {
+        let buildmeshes = [];
+        this.buildings.forEach(function(building) {
+            buildmeshes.push(building.cube);
+        });
+        
+        let totalRays = 0;
+        let skyHits = 0;
+        let raycaster = new Raycaster();
+        raycaster.far = 30;                 // Maximum distance of rays.
+        let intersects;
+        let origin = point;
+        let direction = new Vector3();
+        for (let r = 0; r < 2 * Math.PI; r += Math.PI / 10) {
+            direction.x = Math.sin(r);
+            direction.z = Math.cos(r);
+            for (let v = Math.PI / 10; v < Math.PI / 2; v += Math.PI / 10) {
+                direction.x *= Math.cos(v);
+                direction.z *= Math.cos(v);
+                direction.y = Math.sin(v);
+                raycaster.set(origin, direction.normalize());
+                intersects = raycaster.intersectObjects(buildmeshes, false);
+
+                if (intersects.length === 0) {
+                    skyHits++;
+                }
+                totalRays++;
+            }
+        }
+        return skyHits / totalRays;
     }
 }
