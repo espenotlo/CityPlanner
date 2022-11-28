@@ -57,7 +57,6 @@ export class BuildManager {
         if(toBeRemoved != null) {
             this.world.removeBuilding(buildingID);
             this.scene.remove(toBeRemoved.cube);
-            console.log(toBeRemoved);
             this.buildings.splice(this.buildings.findIndex(obj => {
                 return obj === toBeRemoved;
             },1));

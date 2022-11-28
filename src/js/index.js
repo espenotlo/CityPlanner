@@ -332,6 +332,7 @@ function checkLandmarkVisibility(event) {
 }
 
 let prevValue = null;
+let prevPrevValue = null; // used to unselect current mode in button is pressed again
 export function selectedEditMode(functionality) {
   //TODO: probably a better way to remove the listeners
   container.removeEventListener('mousedown',addBuildingOnMouseClick,false);
@@ -340,7 +341,7 @@ export function selectedEditMode(functionality) {
 
   hideLandmarkVisibility();
   document.getElementById('addBuildingSettings').classList.add('grayOut');
-  if(functionality != prevValue) {
+  if(functionality != prevValue || prevValue === prevPrevValue) {
     switch (functionality) {
       case 'addBuilding':
         document.getElementById('addBuildingSettings').classList.remove('grayOut');
@@ -370,6 +371,7 @@ export function selectedEditMode(functionality) {
   } else {
     showCurrentMode('none');
   }
+  prevPrevValue = prevValue;
   prevValue = functionality;
 }
 window.selectedEditMode = selectedEditMode;
