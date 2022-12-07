@@ -346,6 +346,7 @@ function checkSkyExposure(event) {
   rayCaster.setFromCamera(mousePosition, camera);
   intersects = rayCaster.intersectObjects(scene.children, true);
   console.log(buildManager.getSkyExposure(intersects[0].point));
+  showSkyExposure(buildManager.getSkyExposure(intersects[0].point));
 }
 
 let prevValue = null;
@@ -355,6 +356,7 @@ export function selectedEditMode(functionality) {
   container.removeEventListener('mousedown',addBuildingOnMouseClick,false);
   container.removeEventListener('mousedown',removeBuildingAtMousePosition,false);
   container.removeEventListener('mousedown',checkLandmarkVisibility,false);
+  container.removeEventListener('mousedown',checkSkyExposure,false)
 
   hideLandmarkVisibility();
   document.getElementById('addBuildingSettings').classList.add('grayOut');
@@ -381,6 +383,10 @@ export function selectedEditMode(functionality) {
       case 'checkVisibility':
         container.addEventListener('mousedown',checkLandmarkVisibility,false);
         showCurrentMode('Check landmark visibility');
+        break;
+      case 'checkSkyExposure':
+        container.addEventListener('mousedown',checkSkyExposure,false)
+        showCurrentMode('Get sky exposure')
         break;
       default:
         break;

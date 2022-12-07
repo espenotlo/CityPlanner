@@ -59,6 +59,24 @@ function showLandmarkVisibility(visibility) {
 }
 window.showLandmarkVisibility = showLandmarkVisibility;
 
+function showSkyExposure(exposure) {
+    let canvas = document.getElementById('canvas');
+    let element = document.getElementById('landmarkVisibilityOverlay');
+    if (typeof(element) != 'undefined' && element != null) {
+        element.classList.remove('hideItem');
+        element.innerHTML = 'Sky exposure: '+ exposure.toFixed(3)*100 + '%';
+        element.id = 'landmarkVisibilityOverlay';
+    } else {
+        let containerDiv = document.createElement('div');
+
+        containerDiv.innerHTML = 'Landmark visibility: '+ exposure.toFixed(3)*100 + '%';
+        containerDiv.id = 'landmarkVisibilityOverlay';
+    
+        canvas.appendChild(containerDiv);
+    }
+}
+window.showSkyExposure = showSkyExposure;
+
 function hideLandmarkVisibility() {
     let element = document.getElementById('landmarkVisibilityOverlay');
     if (typeof(element) != 'undefined' && element != null) {
