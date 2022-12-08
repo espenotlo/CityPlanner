@@ -96,5 +96,21 @@ function showCurrentMode(mode) {
 window.showCurrentMode = showCurrentMode;
 
 
+function showFileUpload() {
+    let canvas = document.getElementById('canvas');
+    let element = document.getElementById('landmarkVisibilityOverlay');
+    if (typeof(element) != 'undefined' && element != null) {
+        element.classList.remove('hideItem');
+        element.innerHTML = '<p><input type="file" name="scene" id="file")"><button type="submit" onclick=loadFile()>Upload file</button></p>'
+        element.id = 'landmarkVisibilityOverlay';
+    } else {
+        let containerDiv = document.createElement('div');
+        containerDiv.innerHTML = '<p><input type="file" name="scene" id="file"><button type="submit" onclick=loadFile()>Upload file</button></p>'
+        containerDiv.id = 'landmarkVisibilityOverlay';
+    
+        canvas.appendChild(containerDiv);
+    }
+}
+window.showFileUpload = showFileUpload;
 
 
