@@ -15,6 +15,6 @@ export class Building {
         this.cube = new THREE.Mesh(geometry, material);
         this.cube.castShadow = true;
         this.cube.receiveShadow = true;
-        this.isLandmark = isLandmark === true ? true : false;
+        this.isLandmark = isLandmark === true;
     }
 }

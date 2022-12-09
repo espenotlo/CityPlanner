@@ -174,8 +174,19 @@ function init() {
   initBuildings();
 
 
-  //drawHeatmap(sunlight);
 
+
+  //Heatmap raycasting test
+  const lineVec = new Vector3(40,-1,40);
+  //drawHeatmap(sunlight);
+  renderer.render(scene, camera);
+  let array = [];
+  array.push(...worldCellGroup.children);
+  array.push(...scene.children)
+  shootRay(sunlight.position,lineVec , array);
+  const bufferGeo = new THREE.BufferGeometry().setFromPoints([sunlight.position, lineVec]);
+  const line = new THREE.Line(bufferGeo, new THREE.LineBasicMaterial({color: 0xffffff}));
+  scene.add(line);
 
   window.addEventListener( 'resize', onWindowResize );
 }
@@ -424,8 +435,8 @@ function drawHeatmap(light) {
   let colorArray = [];
   let meshes = scene.children;
   let rayStart = light.position;
-  for (let x = 40; x <= 60; x++) {
-    for (let y = 40; y <= 60; y++) {
+  for (let x = -15; x <= 15; x++) {
+    for (let y = -15; y <= 15; y++) {
       let des = new Vector3(x, y, 0.00);
       colorArray.push(shootRay(rayStart,des,meshes));
     }
@@ -441,8 +452,14 @@ function shootRay(rayStart, rayEnd, mesh){
   const intersects = rayCaster.intersectObjects(mesh);
 
   console.log(intersects.length);
-  console.log(intersects[5].object);
+  console.log();
+
   if (intersects.length > 0) {
+    for (let i = 0;i < intersects.length; i++){
+      if(intersects[i].object.isObject3D && intersects[i].object !== THREE.Line) {
+        console.log(intersects[i].object);
+      }
+    }
     // Check if the first intersection is with the mesh or the other object
     if (intersects[0].object === mesh) {
       // If it's the mesh, check if the geometry is a PlaneGeometry
