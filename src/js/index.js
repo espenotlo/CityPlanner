@@ -6,7 +6,7 @@ import { Sky } from 'https://unpkg.com/three@0.146.0/examples/jsm/objects/Sky.js
 import { World } from './world.js';
 import { BuildManager } from './building/build_manager.js';
 import { Building } from './building/building.js';
-import { DirectionalLightHelper, Mesh, MeshPhongMaterial, Raycaster, SphereGeometry } from 'three';
+import { DirectionalLightHelper, Vector3, Mesh, MeshPhongMaterial, Raycaster, SphereGeometry } from 'three';
 
 // Controller for index.html
 let camera, scene, renderer;
@@ -28,6 +28,7 @@ const link = document.createElement('a');
 
 init();
 
+
 function initWorld() {
   let planeGeo = new SphereGeometry(1000);
   planeGeo.scale(1,0.0005,1);
@@ -45,7 +46,9 @@ function initWorld() {
   worldCellMeshes.forEach(mesh => {
     worldCellGroup.add(mesh);
   });
-  scene.add(worldCellGroup)
+  scene.add(worldCellGroup);
+
+
 }
 
 function initBuildings() {
@@ -158,6 +161,8 @@ function init() {
   mousePosition = new THREE.Vector2;
   rayCaster = new THREE.Raycaster();
 
+
+
   // Camera controller
   const controls = new OrbitControls( camera, renderer.domElement );
   controls.maxPolarAngle = Math.PI / 2.1;
@@ -167,6 +172,10 @@ function init() {
   initSky();
   initWorld();
   initBuildings();
+
+
+  //drawHeatmap(sunlight);
+
 
   window.addEventListener( 'resize', onWindowResize );
 }
@@ -403,3 +412,63 @@ function selectLandmarkBox() {
   }
 }
 window.selectLandmarkBox = selectLandmarkBox;
+
+
+function drawHeatmap(light) {
+  let colorArray = [];
+  let meshes = scene.children;
+  let rayStart = light.position;
+  for (let x = 40; x <= 60; x++) {
+    for (let y = 40; y <= 60; y++) {
+      let des = new Vector3(x, y, 0.00);
+      colorArray.push(shootRay(rayStart,des,meshes));
+    }
+  }
+  console.log(colorArray);
+}
+
+function shootRay(rayStart, rayEnd, mesh){
+
+  rayCaster.set(rayStart, rayEnd.clone().sub(rayStart).normalize());
+
+  // Check if the ray intersects with the mesh or the other object
+  const intersects = rayCaster.intersectObjects(mesh);
+
+  console.log(intersects.length);
+  console.log(intersects[5].object);
+  if (intersects.length > 0) {
+    // Check if the first intersection is with the mesh or the other object
+    if (intersects[0].object === mesh) {
+      // If it's the mesh, check if the geometry is a PlaneGeometry
+      if (mesh.geometry instanceof THREE.PlaneGeometry) {
+        // If it's a PlaneGeometry, set the color to the color at the intersection point
+        let faceIndex = intersects[0].faceIndex;
+
+        // Get the face from the mesh's geometry
+        let face = mesh.geometry.faces[ faceIndex ];
+
+        // Get the face's vertex colors
+        let color1 = face.vertexColors[0];
+        let color2 = face.vertexColors[1];
+        let color3 = face.vertexColors[2];
+
+        // Average the vertex colors to get the overall color of the face
+        let color = new THREE.Color();
+        color.r = ( color1.r + color2.r + color3.r ) / 3;
+        color.g = ( color1.g + color2.g + color3.g ) / 3;
+        color.b = ( color1.b + color2.b + color3.b ) / 3;
+        return 2;
+        //return color;
+      }
+    } else {
+      // If it's the other object, set the color to black
+      return 1;
+      //return new THREE.Color(0,0,0);
+    }
+  }
+}
+
+
+
+
+
