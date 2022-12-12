@@ -47,8 +47,6 @@ function initWorld() {
     worldCellGroup.add(mesh);
   });
   scene.add(worldCellGroup);
-
-
 }
 
 function initBuildings() {
@@ -148,7 +146,7 @@ function init() {
   const helper = new THREE.GridHelper( 110, 1, 0xffffff, 0xffffff );
   scene.add( helper );
 
-  renderer = new THREE.WebGLRenderer();
+  renderer = new THREE.WebGLRenderer({preserveDrawingBuffer: true, antialias : true});
   renderer.setPixelRatio( window.devicePixelRatio );
   renderer.setSize( container.offsetWidth, container.offsetHeight );
   renderer.outputEncoding = THREE.sRGBEncoding;
@@ -161,7 +159,36 @@ function init() {
   mousePosition = new THREE.Vector2;
   rayCaster = new THREE.Raycaster();
 
+  // Calculates the light intensity at mouse screen position.
+  renderer.domElement.addEventListener("click",function(event) {
+ 
+  var rect = renderer.domElement.getBoundingClientRect();
+  const x = event.clientX - rect.left;
+  const y = event.clientY - rect.top;
+  mousePosition.x = ( x/ renderer.domElement.offsetWidth )  * 2 - 1;
+  mousePosition.y = - ( y /renderer.domElement.offsetHeight )  * 2 + 1;
 
+  // get the luminance of the texture of the object at mouse position
+  rayCaster.setFromCamera(mousePosition, camera);
+  intersects = rayCaster.intersectObjects(scene.children, true);
+  if (intersects.length < 1) return;
+  let color = intersects[0].object.material.color;
+
+  let sourceLuminance = (0.2126 * color.r + 0.7152 * color.g + 0.0722 * color.b);
+
+  // get the luminance of the pixel at mouse position
+  var offscreenCanvas = document.createElement("canvas");
+  offscreenCanvas.width = rect.width;
+  offscreenCanvas.height = rect.height;
+  var ctx = offscreenCanvas.getContext("2d");
+  ctx.drawImage(renderer.domElement,-0*offscreenCanvas.width,-0*offscreenCanvas.height, rect.width, rect.height);
+  var imageData = ctx.getImageData(x,y, 1, 1);
+  var c = imageData.data;
+  c = [c[0], c[1],c[2]];
+  var luminance = (0.2126 * c[0] / 255) + 0.7152 * (c[1] / 255) + 0.0722 * (c[2] / 255);
+  console.log("luminance: " + (luminance / sourceLuminance));
+
+  },false);
 
   // Camera controller
   const controls = new OrbitControls( camera, renderer.domElement );
@@ -172,9 +199,6 @@ function init() {
   initSky();
   initWorld();
   initBuildings();
-
-
-
 
   //Heatmap raycasting test
   const lineVec = new Vector3(40,-1,40);
@@ -451,13 +475,13 @@ function shootRay(rayStart, rayEnd, mesh){
   // Check if the ray intersects with the mesh or the other object
   const intersects = rayCaster.intersectObjects(mesh);
 
-  console.log(intersects.length);
-  console.log();
+  //console.log(intersects.length);
+  //console.log();
 
   if (intersects.length > 0) {
     for (let i = 0;i < intersects.length; i++){
       if(intersects[i].object.isObject3D && intersects[i].object !== THREE.Line) {
-        console.log(intersects[i].object);
+        //console.log(intersects[i].object);
       }
     }
     // Check if the first intersection is with the mesh or the other object
