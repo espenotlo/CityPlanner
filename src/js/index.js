@@ -277,8 +277,9 @@ function addBuildingOnMouseClick(event) {
 
   let position = getMouseWorldPosition(event);
   let building = createBuilding();
-
-  buildManager.addBuilding(building, position.xPos, position.zPos);
+  if (position != null) {
+    buildManager.addBuilding(building, position.xPos, position.zPos);
+  }
 }
 
 function createBuilding() {
