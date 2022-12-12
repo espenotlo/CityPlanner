@@ -266,7 +266,7 @@ function getMouseWorldPosition(event){
 
   rayCaster.setFromCamera(mousePosition, camera);
   intersects = rayCaster.intersectObjects(worldCellGroup.children, true);
-
+  if (intersects.length < 1) return;
   let xPos = Math.abs(Math.round((intersects[0].point.x/10)+5));
   let zPos = Math.abs(Math.round((intersects[0].point.z/10)+5));
   return {xPos, zPos};

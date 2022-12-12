@@ -47,8 +47,8 @@ export class BuildManager {
             building.cube.name = this.index;
             this.scene.add(building.cube);
             if (building.isLandmark) {
-                this.landmarkMarker.position.set(positionXOffset, positionZ + 15, positionYOffset);
-                this.defaultMarkerPos = new Vector3(positionXOffset, positionZ + 15, positionYOffset);
+                this.landmarkMarker.position.set(positionXOffset, positionZ * 2 + 10, positionYOffset);
+                this.defaultMarkerPos = new Vector3(positionXOffset, positionZ * 2 + 10, positionYOffset);
                 this.scene.add(this.landmarkMarker);
             }
 
