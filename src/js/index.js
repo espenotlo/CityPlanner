@@ -362,7 +362,15 @@ function checkLandmarkVisibility(event) {
 
   rayCaster.setFromCamera(mousePosition, camera);
   intersects = rayCaster.intersectObjects(scene.children, true);
-  let building = buildManager.map.get(intersects[0].object.name);
+  if (intersects.length < 1) return;
+  let building = null;
+  for (let i = 0; i < intersects.length; i++) {
+    if (intersects[i].object.name != "") {
+      building = buildManager.map.get(intersects[i].object.name);
+      break;
+    }
+  }
+  if (building == null) return;
   let visibility = buildManager.getVisibilityToLandmark(building);
 
   showLandmarkVisibility(visibility);
@@ -376,8 +384,16 @@ function checkSkyExposure(event) {
 
   rayCaster.setFromCamera(mousePosition, camera);
   intersects = rayCaster.intersectObjects(scene.children, true);
-  console.log(buildManager.getSkyExposure(intersects[0].point));
-  showSkyExposure(buildManager.getSkyExposure(intersects[0].point));
+  if (intersects < 1) return;
+  let building = null;
+  for (let i = 0; i < intersects.length; i++) {
+    if (intersects[i].object.name != "") {
+      building = intersects[i].object;
+    }
+  }
+  if (building == null) return;
+  console.dir(building);
+  showSkyExposure(buildManager.getSkyExposure(building));
 }
 
 let prevValue = null;
