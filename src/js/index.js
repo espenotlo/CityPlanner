@@ -187,6 +187,7 @@ function init() {
   c = [c[0], c[1],c[2]];
   var luminance = (0.2126 * c[0] / 255) + 0.7152 * (c[1] / 255) + 0.0722 * (c[2] / 255);
   console.log("luminance: " + (luminance / sourceLuminance));
+  return Math.max(luminance / sourceLuminance, 1);
 
   },false);
 
