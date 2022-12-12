@@ -250,18 +250,19 @@ export function setTimeOfDay(value) {
 }
 window.setTimeOfDay = setTimeOfDay;
 
-
-
-function getMousePosition(event){
-  intersects = [];
-
+function updateMousePosition(event) {
   //calculates mouse 2d position on canvas (0,0) is center
   const rect = renderer.domElement.getBoundingClientRect();
   const x = event.clientX - rect.left;
   const y = event.clientY - rect.top;
   mousePosition.x = ( x/ renderer.domElement.offsetWidth )  * 2 - 1;
   mousePosition.y = - ( y /renderer.domElement.offsetHeight )  * 2 + 1;
+}
 
+function getMouseWorldPosition(event){
+  intersects = [];
+
+  updateMousePosition(event);
 
   rayCaster.setFromCamera(mousePosition, camera);
   intersects = rayCaster.intersectObjects(worldCellGroup.children, true);
@@ -274,7 +275,7 @@ function getMousePosition(event){
 function addBuildingOnMouseClick(event) {
   event.preventDefault();
 
-  let position = getMousePosition(event);
+  let position = getMouseWorldPosition(event);
   let building = createBuilding();
 
   buildManager.addBuilding(building, position.xPos, position.zPos);
@@ -314,12 +315,7 @@ function createMaterialFromName(name) {
 function removeBuildingAtMousePosition(event){
   intersects = [];
 
-  //calculates mouse 2d position on canvas (0,0) is center
-  const rect = renderer.domElement.getBoundingClientRect();
-  const x = event.clientX - rect.left;
-  const y = event.clientY - rect.top;
-  mousePosition.x = ( x/ renderer.domElement.offsetWidth )  * 2 - 1;
-  mousePosition.y = - ( y /renderer.domElement.offsetHeight )  * 2 + 1;
+  updateMousePosition(event);
 
   rayCaster.setFromCamera(mousePosition, camera);
   intersects = rayCaster.intersectObjects(scene.children, true);
@@ -362,12 +358,7 @@ function uploadFileAndLoad(){
 function checkLandmarkVisibility(event) {
   intersects = [];
 
-  //calculates mouse 2d position on canvas (0,0) is center
-  const rect = renderer.domElement.getBoundingClientRect();
-  const x = event.clientX - rect.left;
-  const y = event.clientY - rect.top;
-  mousePosition.x = ( x/ renderer.domElement.offsetWidth )  * 2 - 1;
-  mousePosition.y = - ( y /renderer.domElement.offsetHeight )  * 2 + 1;
+  updateMousePosition(event);
 
   rayCaster.setFromCamera(mousePosition, camera);
   intersects = rayCaster.intersectObjects(scene.children, true);
@@ -381,12 +372,7 @@ function checkLandmarkVisibility(event) {
 function checkSkyExposure(event) {
   intersects = [];
 
-  //calculates mouse 2d position on canvas (0,0) is center
-  const rect = renderer.domElement.getBoundingClientRect();
-  const x = event.clientX - rect.left;
-  const y = event.clientY - rect.top;
-  mousePosition.x = ( x/ renderer.domElement.offsetWidth )  * 2 - 1;
-  mousePosition.y = - ( y /renderer.domElement.offsetHeight )  * 2 + 1;
+  updateMousePosition(event);
 
   rayCaster.setFromCamera(mousePosition, camera);
   intersects = rayCaster.intersectObjects(scene.children, true);
