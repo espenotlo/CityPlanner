@@ -47,8 +47,6 @@ function initWorld() {
     worldCellGroup.add(mesh);
   });
   scene.add(worldCellGroup);
-
-
 }
 
 function initBuildings() {
@@ -148,7 +146,7 @@ function init() {
   const helper = new THREE.GridHelper( 110, 1, 0xffffff, 0xffffff );
   scene.add( helper );
 
-  renderer = new THREE.WebGLRenderer();
+  renderer = new THREE.WebGLRenderer({preserveDrawingBuffer: true, antialias : true});
   renderer.setPixelRatio( window.devicePixelRatio );
   renderer.setSize( container.offsetWidth, container.offsetHeight );
   renderer.outputEncoding = THREE.sRGBEncoding;
@@ -161,7 +159,37 @@ function init() {
   mousePosition = new THREE.Vector2;
   rayCaster = new THREE.Raycaster();
 
+  // Calculates the light intensity at mouse screen position.
+  renderer.domElement.addEventListener("click",function(event) {
+ 
+  var rect = renderer.domElement.getBoundingClientRect();
+  const x = event.clientX - rect.left;
+  const y = event.clientY - rect.top;
+  mousePosition.x = ( x/ renderer.domElement.offsetWidth )  * 2 - 1;
+  mousePosition.y = - ( y /renderer.domElement.offsetHeight )  * 2 + 1;
 
+  // get the luminance of the texture of the object at mouse position
+  rayCaster.setFromCamera(mousePosition, camera);
+  intersects = rayCaster.intersectObjects(scene.children, true);
+  if (intersects.length < 1) return;
+  let color = intersects[0].object.material.color;
+
+  let sourceLuminance = (0.2126 * color.r + 0.7152 * color.g + 0.0722 * color.b);
+
+  // get the luminance of the pixel at mouse position
+  var offscreenCanvas = document.createElement("canvas");
+  offscreenCanvas.width = rect.width;
+  offscreenCanvas.height = rect.height;
+  var ctx = offscreenCanvas.getContext("2d");
+  ctx.drawImage(renderer.domElement,-0*offscreenCanvas.width,-0*offscreenCanvas.height, rect.width, rect.height);
+  var imageData = ctx.getImageData(x,y, 1, 1);
+  var c = imageData.data;
+  c = [c[0], c[1],c[2]];
+  var luminance = (0.2126 * c[0] / 255) + 0.7152 * (c[1] / 255) + 0.0722 * (c[2] / 255);
+  console.log("luminance: " + (luminance / sourceLuminance));
+  return Math.max(luminance / sourceLuminance, 1);
+
+  },false);
 
   // Camera controller
   const controls = new OrbitControls( camera, renderer.domElement );
@@ -172,9 +200,6 @@ function init() {
   initSky();
   initWorld();
   initBuildings();
-
-
-
 
   //Heatmap raycasting test
   getHeatmap(sunlight);
@@ -215,22 +240,23 @@ export function setTimeOfDay(value) {
 }
 window.setTimeOfDay = setTimeOfDay;
 
-
-
-function getMousePosition(event){
-  intersects = [];
-
+function updateMousePosition(event) {
   //calculates mouse 2d position on canvas (0,0) is center
   const rect = renderer.domElement.getBoundingClientRect();
   const x = event.clientX - rect.left;
   const y = event.clientY - rect.top;
   mousePosition.x = ( x/ renderer.domElement.offsetWidth )  * 2 - 1;
   mousePosition.y = - ( y /renderer.domElement.offsetHeight )  * 2 + 1;
+}
 
+function getMouseWorldPosition(event){
+  intersects = [];
+
+  updateMousePosition(event);
 
   rayCaster.setFromCamera(mousePosition, camera);
   intersects = rayCaster.intersectObjects(worldCellGroup.children, true);
-
+  if (intersects.length < 1) return;
   let xPos = Math.abs(Math.round((intersects[0].point.x/10)+5));
   let zPos = Math.abs(Math.round((intersects[0].point.z/10)+5));
   return {xPos, zPos};
@@ -239,10 +265,11 @@ function getMousePosition(event){
 function addBuildingOnMouseClick(event) {
   event.preventDefault();
 
-  let position = getMousePosition(event);
+  let position = getMouseWorldPosition(event);
   let building = createBuilding();
-
-  buildManager.addBuilding(building, position.xPos, position.zPos);
+  if (position != null) {
+    buildManager.addBuilding(building, position.xPos, position.zPos);
+  }
 }
 
 function createBuilding() {
@@ -279,12 +306,7 @@ function createMaterialFromName(name) {
 function removeBuildingAtMousePosition(event){
   intersects = [];
 
-  //calculates mouse 2d position on canvas (0,0) is center
-  const rect = renderer.domElement.getBoundingClientRect();
-  const x = event.clientX - rect.left;
-  const y = event.clientY - rect.top;
-  mousePosition.x = ( x/ renderer.domElement.offsetWidth )  * 2 - 1;
-  mousePosition.y = - ( y /renderer.domElement.offsetHeight )  * 2 + 1;
+  updateMousePosition(event);
 
   rayCaster.setFromCamera(mousePosition, camera);
   intersects = rayCaster.intersectObjects(scene.children, true);
@@ -327,16 +349,19 @@ function uploadFileAndLoad(){
 function checkLandmarkVisibility(event) {
   intersects = [];
 
-  //calculates mouse 2d position on canvas (0,0) is center
-  const rect = renderer.domElement.getBoundingClientRect();
-  const x = event.clientX - rect.left;
-  const y = event.clientY - rect.top;
-  mousePosition.x = ( x/ renderer.domElement.offsetWidth )  * 2 - 1;
-  mousePosition.y = - ( y /renderer.domElement.offsetHeight )  * 2 + 1;
+  updateMousePosition(event);
 
   rayCaster.setFromCamera(mousePosition, camera);
   intersects = rayCaster.intersectObjects(scene.children, true);
-  let building = buildManager.map.get(intersects[0].object.name);
+  if (intersects.length < 1) return;
+  let building = null;
+  for (let i = 0; i < intersects.length; i++) {
+    if (intersects[i].object.name != "") {
+      building = buildManager.map.get(intersects[i].object.name);
+      break;
+    }
+  }
+  if (building == null) return;
   let visibility = buildManager.getVisibilityToLandmark(building);
 
   showLandmarkVisibility(visibility);
@@ -346,17 +371,20 @@ function checkLandmarkVisibility(event) {
 function checkSkyExposure(event) {
   intersects = [];
 
-  //calculates mouse 2d position on canvas (0,0) is center
-  const rect = renderer.domElement.getBoundingClientRect();
-  const x = event.clientX - rect.left;
-  const y = event.clientY - rect.top;
-  mousePosition.x = ( x/ renderer.domElement.offsetWidth )  * 2 - 1;
-  mousePosition.y = - ( y /renderer.domElement.offsetHeight )  * 2 + 1;
+  updateMousePosition(event);
 
   rayCaster.setFromCamera(mousePosition, camera);
   intersects = rayCaster.intersectObjects(scene.children, true);
-  console.log(buildManager.getSkyExposure(intersects[0].point));
-  showSkyExposure(buildManager.getSkyExposure(intersects[0].point));
+  if (intersects < 1) return;
+  let building = null;
+  for (let i = 0; i < intersects.length; i++) {
+    if (intersects[i].object.name != "") {
+      building = intersects[i].object;
+    }
+  }
+  if (building == null) return;
+  console.dir(building);
+  showSkyExposure(buildManager.getSkyExposure(building));
 }
 
 let prevValue = null;
@@ -465,23 +493,25 @@ function drawHeatmap2(colors) {
 // get the 2D rendering context of the canvas
   const context = canvas.getContext('2d');
 
-
-// create an array of RGB values from the array of three.Color objects
   let newArray = []
-  colors.forEach(color => {newArray.push(color.r*255);newArray.push(color.r*255);newArray.push(color.r*255);newArray.push(0)})
+  colors.forEach(color => {
+    newArray.push(color.r * 255);
+    newArray.push(color.r * 255);
+    newArray.push(color.r * 255);
+    newArray.push(0)
+  })
   console.log(newArray.length);
   console.log(newArray);
-  let testArray = Array.apply(null, Array(961*4)).map(Number.prototype.valueOf,1);
+  let testArray = Array.apply(null, Array(961 * 4)).map(Number.prototype.valueOf, 1);
 
-// create an ImageData object from the array of RGB values
-    const imageData = new ImageData(new Uint8ClampedArray(testArray), 31, 31);
 
-// draw the image on the canvas
-    context.putImageData(imageData, 0, 0);
+  const imageData = new ImageData(new Uint8ClampedArray(testArray), 31, 31);
+
+
+  context.putImageData(imageData, 0, 0);
 
   document.getElementById("heatmap").appendChild(canvas);
-  }
-
+}
 
 
   function shootRay(rayStart, rayEnd, mesh) {

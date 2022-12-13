@@ -47,8 +47,8 @@ export class BuildManager {
             building.cube.name = this.index;
             this.scene.add(building.cube);
             if (building.isLandmark) {
-                this.landmarkMarker.position.set(positionXOffset, positionZ + 15, positionYOffset);
-                this.defaultMarkerPos = new Vector3(positionXOffset, positionZ + 15, positionYOffset);
+                this.landmarkMarker.position.set(positionXOffset, positionZ * 2 + 10, positionYOffset);
+                this.defaultMarkerPos = new Vector3(positionXOffset, positionZ * 2 + 10, positionYOffset);
                 this.scene.add(this.landmarkMarker);
             }
 
@@ -182,8 +182,8 @@ export class BuildManager {
         return hits / total;
     }
 
-    // Calculates the sky exposure at given point in the world.
-    getSkyExposure(point) {
+    // Calculates the sky exposure for a given building.
+    getSkyExposure(building) {
         let buildmeshes = [];
         this.buildings.forEach(function(building) {
             buildmeshes.push(building.cube);
@@ -194,7 +194,7 @@ export class BuildManager {
         let raycaster = new Raycaster();
         raycaster.far = 30;                 // Maximum distance of rays.
         let intersects;
-        let origin = point;
+        let origin = building.position;
         let direction = new Vector3();
         for (let r = 0; r < 2 * Math.PI; r += Math.PI / 10) {
             direction.x = Math.sin(r);
