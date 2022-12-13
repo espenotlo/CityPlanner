@@ -10,7 +10,7 @@ import { DirectionalLightHelper, Vector3, Mesh, MeshPhongMaterial, Raycaster, Sp
 
 // Controller for index.html
 let camera, scene, renderer;
-let sky, sun, sunlight, ambience, world, buildManager;
+let sky, sun, sunlight, ambience, world, buildManager, plane;
 let mousePosition, rayCaster;
 let intersects = [];
 let time = 8;
@@ -34,7 +34,7 @@ function initWorld() {
   planeGeo.scale(1,0.0005,1);
   let planeMat = new MeshPhongMaterial({color: 0x806050});
   planeMat.shininess = 0;
-  let plane = new Mesh(planeGeo, planeMat);
+  plane = new Mesh(planeGeo, planeMat);
   plane.position.set(0,-1,0);
   plane.castShadow = true;
   plane.receiveShadow = true;
@@ -177,17 +177,7 @@ function init() {
 
 
   //Heatmap raycasting test
-  const lineVec = new Vector3(40,-1,40);
-  //drawHeatmap(sunlight);
-  renderer.render(scene, camera);
-  let array = [];
-  array.push(...worldCellGroup.children);
-  array.push(...scene.children)
-  shootRay(sunlight.position,lineVec , array);
-  const bufferGeo = new THREE.BufferGeometry().setFromPoints([sunlight.position, lineVec]);
-  const line = new THREE.Line(bufferGeo, new THREE.LineBasicMaterial({color: 0xffffff}));
-  scene.add(line);
-
+  getHeatmap(sunlight);
   window.addEventListener( 'resize', onWindowResize );
 }
 
@@ -431,67 +421,86 @@ function selectLandmarkBox() {
 window.selectLandmarkBox = selectLandmarkBox;
 
 
-function drawHeatmap(light) {
+
+function getHeatmap(light) {
+  renderer.render(scene, camera);
+  let meshes = [];
+  //buildManager.buildings.forEach(building => meshes.push(building.cube));
+  meshes.push(...worldCellGroup.children);
+  //meshes.push(plane);
   let colorArray = [];
-  let meshes = scene.children;
   let rayStart = light.position;
   for (let x = -15; x <= 15; x++) {
+    let colorRow = [];
     for (let y = -15; y <= 15; y++) {
       let des = new Vector3(x, y, 0.00);
-      colorArray.push(shootRay(rayStart,des,meshes));
+      colorRow.push(shootRay(rayStart,des,meshes));
     }
+    colorArray.push(colorRow);
   }
-  console.log(colorArray);
+  drawHeatmap(colorArray);
 }
 
-function shootRay(rayStart, rayEnd, mesh){
-
-  rayCaster.set(rayStart, rayEnd.clone().sub(rayStart).normalize());
-
-  // Check if the ray intersects with the mesh or the other object
-  const intersects = rayCaster.intersectObjects(mesh);
-
-  console.log(intersects.length);
-  console.log();
-
-  if (intersects.length > 0) {
-    for (let i = 0;i < intersects.length; i++){
-      if(intersects[i].object.isObject3D && intersects[i].object !== THREE.Line) {
-        console.log(intersects[i].object);
-      }
+function drawHeatmap(colors){
+  let canvas = document.createElement("canvas");
+  let context = canvas.getContext("2d");
+  let pixSize = 8;
+  console.log(colors)
+  console.log(colors[0])
+  for (let x = 0; x < colors.length; x++) {
+    let col = colors[x];
+    for (let y = 0; y < col.length; y++){
+      console.log("rgb("+col[y].r+",",col[y].g+",",col[y].b+")")
+      context.fillStyle = "rgb("+col[y].r+",",col[y].g+",",col[y].b+")";
+      context.fillRect(y*pixSize, x*pixSize,pixSize,pixSize);
     }
-    // Check if the first intersection is with the mesh or the other object
-    if (intersects[0].object === mesh) {
+  }
+  document.getElementById("heatmap").appendChild(canvas);
+}
+
+function drawHeatmap2(colors) {
+  const canvas = new HTMLCanvasElement();
+// set the width and height of the canvas
+
+// get the 2D rendering context of the canvas
+  const context = canvas.getContext('2d');
+
+
+// create an array of RGB values from the array of three.Color objects
+  let newArray = []
+  colors.forEach(color => {newArray.push(color.r*255);newArray.push(color.r*255);newArray.push(color.r*255);newArray.push(0)})
+  console.log(newArray.length);
+  console.log(newArray);
+  let testArray = Array.apply(null, Array(961*4)).map(Number.prototype.valueOf,1);
+
+// create an ImageData object from the array of RGB values
+    const imageData = new ImageData(new Uint8ClampedArray(testArray), 31, 31);
+
+// draw the image on the canvas
+    context.putImageData(imageData, 0, 0);
+
+  document.getElementById("heatmap").appendChild(canvas);
+  }
+
+
+
+  function shootRay(rayStart, rayEnd, mesh) {
+
+    rayCaster.set(rayStart, rayEnd.clone().sub(rayStart).normalize());
+
+    // Check if the ray intersects with the mesh or the other object
+    const intersections = rayCaster.intersectObjects(mesh);
+
+    if (intersections.length > 0) {
+      let mesh = intersections[0].object;
       // If it's the mesh, check if the geometry is a PlaneGeometry
       if (mesh.geometry instanceof THREE.PlaneGeometry) {
         // If it's a PlaneGeometry, set the color to the color at the intersection point
-        let faceIndex = intersects[0].faceIndex;
-
-        // Get the face from the mesh's geometry
-        let face = mesh.geometry.faces[ faceIndex ];
-
-        // Get the face's vertex colors
-        let color1 = face.vertexColors[0];
-        let color2 = face.vertexColors[1];
-        let color3 = face.vertexColors[2];
-
-        // Average the vertex colors to get the overall color of the face
-        let color = new THREE.Color();
-        color.r = ( color1.r + color2.r + color3.r ) / 3;
-        color.g = ( color1.g + color2.g + color3.g ) / 3;
-        color.b = ( color1.b + color2.b + color3.b ) / 3;
-        return 2;
-        //return color;
+        return {r: mesh.material.color.r * 255, g: mesh.material.color.g * 255, b: mesh.material.color.b * 255};
+      } else {
+        // If it's the other object, set the color to black
+        return {r: 0, g: 0, b: 0};
+        //return new THREE.Color(0,0,0);
       }
-    } else {
-      // If it's the other object, set the color to black
-      return 1;
-      //return new THREE.Color(0,0,0);
     }
   }
-}
-
-
-
-
-
