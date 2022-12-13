@@ -25,6 +25,7 @@ let time = 8;
 let speed = 1;
 let skyChanged, timeChanged;
 let passTime = true;
+let selectedPoint = null;
 
 //container for the scene
 const container = document.getElementById("canvas");
@@ -222,6 +223,7 @@ function animate() {
   requestAnimationFrame(animate);
   renderer.render(scene, camera);
   drawHeatmap()
+  getLightIntensityAtSelectedPoint();
 }
 animate();
 
@@ -520,11 +522,19 @@ function loadFile() {
 }
 window.loadFile = loadFile;
 
+function setSelectedPoint(event) {
+  selectedPoint = event;
+}
+
 // Calculates the light intensity at mouse screen position.
-function getLightIntensityAtMouse(event){
+function getLightIntensityAtSelectedPoint(){
   var rect = renderer.domElement.getBoundingClientRect();
-  const x = event.clientX - rect.left;
-  const y = event.clientY - rect.top;
+  let x = 0;
+  let y = 0;
+  if (null != selectedPoint) {
+    x = selectedPoint.clientX - rect.left;
+    y = selectedPoint.clientY - rect.top;
+  }
   mousePosition.x = (x / renderer.domElement.offsetWidth) * 2 - 1;
   mousePosition.y = -(y / renderer.domElement.offsetHeight) * 2 + 1;
 
@@ -554,14 +564,11 @@ function getLightIntensityAtMouse(event){
   c = [c[0], c[1], c[2]];
   var luminance =
     (0.2126 * c[0]) / 255 + 0.7152 * (c[1] / 255) + 0.0722 * (c[2] / 255);
-  // console.log("luminance: " + luminance / sourceLuminance);
   let LightValue = Math.round(Math.min(luminance / sourceLuminance, 1) *100);
-  console.log(LightValue);
   let element = document.getElementById('progressBar')
   element.style.width = LightValue + '%';
   element.innerHTML = LightValue + '%';
 
 }
-window.getLightIntensityAtMouse = getLightIntensityAtMouse;
 
-container.addEventListener("mousemove", getLightIntensityAtMouse, false);
+container.addEventListener("mouseup", setSelectedPoint, false);

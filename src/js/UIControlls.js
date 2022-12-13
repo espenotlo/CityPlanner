@@ -14,7 +14,7 @@ function showHome(){
         child.classList.add("hideItem")
     }
     document.getElementById('home').classList.toggle('hideItem');
-    document.getElementById("canvas").addEventListener("mousedown", getLightIntensityAtMouse,false);
+    document.getElementById("canvas").addEventListener("mouseup", setSelectedPoint,false);
 }
 
 function showEdit(){
@@ -27,7 +27,7 @@ function showEdit(){
         child.classList.add("hideItem")
     }
     document.getElementById('editMode').classList.toggle('hideItem');
-    document.getElementById("canvas").removeEventListener("mousedown", getLightIntensityAtMouse,false);
+    document.getElementById("canvas").removeEventListener("mouseup", setSelectedPoint,false);
     console.log();
 
 }
