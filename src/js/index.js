@@ -2,7 +2,6 @@ import * as THREE from 'three';
 import { OrbitControls } from 'https://unpkg.com/three@0.146.0/examples/jsm/controls/OrbitControls.js';
 import { GLTFExporter } from 'https://unpkg.com/three@0.146.0/examples/jsm/exporters/GLTFExporter.js';
 import { GLTFLoader } from 'https://unpkg.com/three@0.146.0/examples/jsm/loaders/GLTFLoader.js';
-import { DRACOLoader } from 'https://unpkg.com/three@0.146.0/examples/jsm/loaders/DRACOLoader.js';
 import { Sky } from 'https://unpkg.com/three@0.146.0/examples/jsm/objects/Sky.js';
 
 import { World } from './world.js';
