@@ -593,4 +593,4 @@ function getLightIntensityAtMouse(event){
 }
 window.getLightIntensityAtMouse = getLightIntensityAtMouse;
 
-container.addEventListener("mousedown", getLightIntensityAtMouse, false);
+container.addEventListener("mousemove", getLightIntensityAtMouse, false);
