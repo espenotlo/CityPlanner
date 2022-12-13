@@ -119,7 +119,6 @@ canvas{
 #heatmap{
     margin: 0 1rem 0 1rem;
     aspect-ratio: 1/1;
-    //background-color: greenyellow;
 }
 #timeOfDay{
     display: flex;
@@ -146,10 +145,6 @@ canvas{
     border: white;
     border-radius: 0.5rem;
 }
-
-
-
-
 .menuItem{
     color: #A0A2A6;
     text-align: center;
@@ -171,4 +166,18 @@ canvas{
 .grayOut{
     pointer-events: none;
     opacity: 50%;
+}
+
+#lightIntensityBar {
+    margin: 0 1rem 0 1rem;
+    background-color: grey;
+}
+
+#progressBar {
+    width: 0%;
+    height: 30px;
+    background-color: #00b4d8;
+    text-align: center; /* To center it horizontally (if you want) */
+    line-height: 30px; /* To center it vertically */
+    color: white; 
 }
