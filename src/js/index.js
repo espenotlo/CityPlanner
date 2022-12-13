@@ -17,7 +17,7 @@ import {
 } from "three";
 
 // Controller for index.html
-let camera, scene, renderer;
+let camera, scene, renderer, heatmapCamera, heatmapRenderer;
 let sky, sun, sunlight, ambience, world, buildManager, plane;
 let mousePosition, rayCaster;
 let intersects = [];
@@ -68,7 +68,7 @@ function initBuildings() {
   const building1 = new Building(1, 1, 1, brown, true);
   const building2 = new Building(1, 2, 1, brick);
   const building3 = new Building(1, 2, 1, darkGrey);
-  const building4 = new Building(2, 4, 2, lightGrey);
+  const building4 = new Building(2, 3, 2, lightGrey);
   const building5 = new Building(1, 2, 1, lightGrey);
 
   buildManager.addBuilding(building1, 0, 0);
@@ -142,6 +142,21 @@ function initSky() {
   };
   skyChanged();
 }
+function initHeatmapRenderer(){
+  heatmapCamera = new THREE.PerspectiveCamera(
+      45,
+      1,
+      1,
+      1000
+  );
+  heatmapCamera.rotation.set(-1.57,0,0)
+  heatmapCamera.position.set(0, 36, 0);
+
+  heatmapRenderer = new THREE.WebGLRenderer({preserveDrawingBuffer: true});
+  heatmapRenderer.shadowMap.enabled = true;
+  heatmapRenderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  heatmapRenderer.setSize(124, 124)
+}
 
 function init() {
   camera = new THREE.PerspectiveCamera(
@@ -151,6 +166,8 @@ function init() {
     2000000
   );
   camera.position.set(75, 75, 75);
+
+  initHeatmapRenderer();
 
   scene = new THREE.Scene();
 
@@ -184,8 +201,7 @@ function init() {
   initWorld();
   initBuildings();
 
-  //Heatmap raycasting test
-  getHeatmap(sunlight);
+  drawHeatmap();
   window.addEventListener("resize", onWindowResize);
 }
 
@@ -205,6 +221,7 @@ function animate() {
   skyChanged();
   requestAnimationFrame(animate);
   renderer.render(scene, camera);
+  drawHeatmap()
 }
 animate();
 
@@ -469,73 +486,27 @@ function selectLandmarkBox() {
 }
 window.selectLandmarkBox = selectLandmarkBox;
 
-function getHeatmap(light) {
-  renderer.render(scene, camera);
-  let meshes = [];
-  buildManager.buildings.forEach(building => meshes.push(building.cube));
-  meshes.push(...worldCellGroup.children);
-  meshes.push(plane);
-  let colorArray = [];
-  let rayStart = light.position;
-  for (let y = -14; y <= 14; y++) {
-    let colorRow = [];
-    for (let x = -14; x <= 14; x++) {
-      let des = new Vector3(x, 0.00, y);
-      const bufferGeo = new THREE.BufferGeometry().setFromPoints([rayStart, des])
-      const line = new THREE.Line(bufferGeo, new THREE.LineBasicMaterial({color: 0xffffff}))
-      scene.add(line)
-      colorRow.push(shootRay(rayStart, des, meshes));
-    }
-    colorArray.push(colorRow);
+export function drawHeatmap() {
+// add the renderer to the page
+  let canvasSize = 124;
+// render the scene
+
+  heatmapRenderer.render(scene, heatmapCamera);
+
+  let canvas = document.getElementById("heatmap")
+  let context = canvas.getContext("2d")
+  let myGLcontext = heatmapRenderer.getContext();
+  let pixelData = new Uint8ClampedArray(canvasSize*canvasSize*4);
+  myGLcontext.readPixels( 0 , 0 , canvasSize , canvasSize , myGLcontext.RGBA , myGLcontext.UNSIGNED_BYTE , pixelData);
+  for (let i = 0; i<pixelData.length;i += 4){
+    let illumination = (pixelData[i] + pixelData[i+1] + pixelData[i+2]) / 160
+    pixelData[i] = Math.ceil(255*illumination)
+    pixelData[i+1] = Math.ceil(100*illumination)
+    pixelData[i+2] = 0
+    pixelData[i+3] = 200
   }
-  drawHeatmap(colorArray);
-}
-
-function drawHeatmap(colors) {
-  let canvas = document.createElement("canvas");
-  let context = canvas.getContext("2d");
-  let pixSize = 4;
-  console.log(colors);
-  console.log(colors[0]);
-  for (let x = 0; x < colors.length; x++) {
-    let col = colors[x];
-    for (let y = 0; y < col.length; y++) {
-      let color = "rgb(" + col[y].r + ","+col[y].g + ","+ col[y].b + ")";
-      console.log(color);
-      context.fillStyle = "rgb("+col[y].r+","+col[y].g+","+col[y].b+")";
-      context.fillRect(y * pixSize, x * pixSize, pixSize, pixSize);
-    }
-  }
-  document.getElementById("heatmap").appendChild(canvas);
-}
-
-
-function shootRay(rayStart, rayEnd, mesh) {
-  rayCaster.set(rayStart, rayEnd.clone().sub(rayStart).normalize());
-
-  // Check if the ray intersects with the mesh or the other object
-  const intersections = rayCaster.intersectObjects(mesh);
-
-  if (intersections.length > 0) {
-    let mesh = intersections[0].object;
-    // If it's the mesh, check if the geometry is a PlaneGeometry
-    if (mesh.geometry instanceof THREE.PlaneGeometry) {
-      // If it's a PlaneGeometry, set the color to the color at the intersection point
-      return {
-        r: mesh.material.color.r * 255,
-        g: mesh.material.color.g * 255,
-        b: mesh.material.color.b * 255,
-      };
-    } else {
-      // If it's the other object, set the color to black
-      return { r: 0, g: 0, b: 0 };
-      //return new THREE.Color(0,0,0);
-    }
-  } else {
-    // If it's the other object, set the color to black
-    return { r: 0, g: 0, b: 0 };
-    //return new THREE.Color(0,0,0);
-  }
+  const imageData = new ImageData(pixelData, canvasSize,canvasSize )
+  context.putImageData(imageData,0,0)
 }
 
 function loadFile() {
