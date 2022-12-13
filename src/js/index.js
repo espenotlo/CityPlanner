@@ -68,7 +68,7 @@ function initBuildings() {
   const building1 = new Building(1, 1, 1, brown, true);
   const building2 = new Building(1, 2, 1, brick);
   const building3 = new Building(1, 2, 1, darkGrey);
-  const building4 = new Building(2, 2, 2, lightGrey);
+  const building4 = new Building(2, 4, 2, lightGrey);
   const building5 = new Building(1, 2, 1, lightGrey);
 
   buildManager.addBuilding(building1, 0, 0);
@@ -472,15 +472,18 @@ window.selectLandmarkBox = selectLandmarkBox;
 function getHeatmap(light) {
   renderer.render(scene, camera);
   let meshes = [];
-  //buildManager.buildings.forEach(building => meshes.push(building.cube));
+  buildManager.buildings.forEach(building => meshes.push(building.cube));
   meshes.push(...worldCellGroup.children);
-  //meshes.push(plane);
+  meshes.push(plane);
   let colorArray = [];
   let rayStart = light.position;
-  for (let x = -15; x <= 15; x++) {
+  for (let x = -14; x <= 14; x++) {
     let colorRow = [];
-    for (let y = -15; y <= 15; y++) {
-      let des = new Vector3(x, y, 0.0);
+    for (let y = -14; y <= 14; y++) {
+      let des = new Vector3(x, 0.00, y);
+      const bufferGeo = new THREE.BufferGeometry().setFromPoints([rayStart, des])
+      const line = new THREE.Line(bufferGeo, new THREE.LineBasicMaterial({color: 0xffffff}))
+      scene.add(line)
       colorRow.push(shootRay(rayStart, des, meshes));
     }
     colorArray.push(colorRow);
@@ -491,49 +494,21 @@ function getHeatmap(light) {
 function drawHeatmap(colors) {
   let canvas = document.createElement("canvas");
   let context = canvas.getContext("2d");
-  let pixSize = 8;
+  let pixSize = 4;
   console.log(colors);
   console.log(colors[0]);
   for (let x = 0; x < colors.length; x++) {
     let col = colors[x];
     for (let y = 0; y < col.length; y++) {
-      console.log("rgb(" + col[y].r + ",", col[y].g + ",", col[y].b + ")");
-      (context.fillStyle = "rgb(" + col[y].r + ","),
-        col[y].g + ",",
-        col[y].b + ")";
+      let color = "rgb(" + col[y].r + ","+col[y].g + ","+ col[y].b + ")";
+      console.log(color);
+      context.fillStyle = "rgb("+col[y].r+","+col[y].g+","+col[y].b+")";
       context.fillRect(y * pixSize, x * pixSize, pixSize, pixSize);
     }
   }
   document.getElementById("heatmap").appendChild(canvas);
 }
 
-function drawHeatmap2(colors) {
-  const canvas = new HTMLCanvasElement();
-  // set the width and height of the canvas
-
-  // get the 2D rendering context of the canvas
-  const context = canvas.getContext("2d");
-
-  let newArray = [];
-  colors.forEach((color) => {
-    newArray.push(color.r * 255);
-    newArray.push(color.r * 255);
-    newArray.push(color.r * 255);
-    newArray.push(0);
-  });
-  console.log(newArray.length);
-  console.log(newArray);
-  let testArray = Array.apply(null, Array(961 * 4)).map(
-    Number.prototype.valueOf,
-    1
-  );
-
-  const imageData = new ImageData(new Uint8ClampedArray(testArray), 31, 31);
-
-  context.putImageData(imageData, 0, 0);
-
-  document.getElementById("heatmap").appendChild(canvas);
-}
 
 function shootRay(rayStart, rayEnd, mesh) {
   rayCaster.set(rayStart, rayEnd.clone().sub(rayStart).normalize());
@@ -556,6 +531,10 @@ function shootRay(rayStart, rayEnd, mesh) {
       return { r: 0, g: 0, b: 0 };
       //return new THREE.Color(0,0,0);
     }
+  } else {
+    // If it's the other object, set the color to black
+    return { r: 0, g: 0, b: 0 };
+    //return new THREE.Color(0,0,0);
   }
 }
 
