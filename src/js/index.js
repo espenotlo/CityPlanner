@@ -477,9 +477,9 @@ function getHeatmap(light) {
   meshes.push(plane);
   let colorArray = [];
   let rayStart = light.position;
-  for (let x = -14; x <= 14; x++) {
+  for (let y = -14; y <= 14; y++) {
     let colorRow = [];
-    for (let y = -14; y <= 14; y++) {
+    for (let x = -14; x <= 14; x++) {
       let des = new Vector3(x, 0.00, y);
       const bufferGeo = new THREE.BufferGeometry().setFromPoints([rayStart, des])
       const line = new THREE.Line(bufferGeo, new THREE.LineBasicMaterial({color: 0xffffff}))
