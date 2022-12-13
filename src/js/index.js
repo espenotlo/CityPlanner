@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'https://unpkg.com/three@0.146.0/examples/jsm/controls/OrbitControls.js';
 import { GLTFExporter } from 'https://unpkg.com/three@0.146.0/examples/jsm/exporters/GLTFExporter.js';
+import { GLTFLoader } from 'https://unpkg.com/three@0.146.0/examples/jsm/loaders/GLTFLoader.js';
 import { Sky } from 'https://unpkg.com/three@0.146.0/examples/jsm/objects/Sky.js';
 
 import { World } from './world.js';
@@ -322,14 +323,41 @@ function removeSelectedBuilding(buildingId) {
 
 function saveScene() {
   const exporter = new GLTFExporter();
+
+  const params = {
+    trs: false,
+    onlyVisible: false,
+    binary: false,
+    maxTextureSize: 4096,
+  };
+  const options = {
+    trs: params.trs,
+    onlyVisible: params.onlyVisible,
+    binary: params.binary,
+    maxTextureSize: params.maxTextureSize
+  };
+
   exporter.parse(
   scene,
 	function (result) {
-    saveArrayBuffer(result, 'scene.glb')
+    if ( result instanceof ArrayBuffer ) {
+
+      saveArrayBuffer( result, 'scene.glb' );
+
+    } else {
+
+      const output = JSON.stringify( result, null, 2 );
+      saveString( output, 'scene.gltf' );
+
+    }
 	},
-  {
-    binary:true
-  })
+  function ( error ) {
+
+    console.log( 'An error happened during parsing', error );
+
+  },
+    options
+  );
 }
 
 function saveArrayBuffer(buffer, fileName) {
@@ -340,10 +368,14 @@ function save (blob, fileName) {
   link.download = fileName;
   link.click();
 }
+function saveString( text, filename ) {
+
+  save( new Blob( [ text ], { type: 'text/plain' } ), filename );
+
+}
 
 function uploadFileAndLoad(){
-  window.open('fileUpload.html','popUpWindow','height=500,width=400,left=100,top=100,resizable=yes,scrollbars=yes,toolbar=yes,menubar=no,location=no,directories=no, status=yes');
-  
+  showFileUpload();
 }
 
 function checkLandmarkVisibility(event) {
@@ -534,3 +566,15 @@ function drawHeatmap2(colors) {
       }
     }
   }
+
+
+function loadFile() {
+  const file = document.getElementById('file').files[0];
+  let loader = new GLTFLoader();
+	let url = URL.createObjectURL(file);
+  loader.load(url, (gltf) => {
+    scene = (gltf.scene);
+    renderer.render( scene, camera );
+  });
+}
+window.loadFile = loadFile;
