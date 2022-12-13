@@ -19,7 +19,13 @@ Usage:
 The application has two main modes: Home and Edit.
 
 The home mode displays information about light intensity
-at the cursor's location, as well as a shadow heatmap.
+at a given location, as well as a shadow heatmap.
+
+Initially, the light intensity bar shows the light intensity
+variation in the center of the park, but the location may
+be changed by clicking on any point in the world.
+
+The shadow heatmap shows the shadow variations in the park area.
 
 The Edit mode contains a toolbar allowing the user
 to customize the city and retrieve detailed information
