@@ -1,4 +1,4 @@
-import { Vector3, Raycaster, Mesh, BufferGeometry, BufferAttribute, MeshPhongMaterial, OneMinusDstAlphaFactor } from "three";
+import { Vector3, Raycaster, Mesh, BufferGeometry, BufferAttribute, MeshPhongMaterial, OneMinusDstAlphaFactor, MeshBasicMaterial } from "three";
 import { World } from "../world.js";
 import { Building } from "./building.js";
 export class BuildManager {
@@ -152,7 +152,7 @@ export class BuildManager {
              -1.0,  1.0, -0.3,
         ]);
         geometry.setAttribute('position', new BufferAttribute(vertices, 3));
-        const material = new MeshPhongMaterial( {color: 0x20ff20, shininess: 50, emissive: 0x008800} );
+        const material = new MeshBasicMaterial( {color: 0x00ff00} );
         const mesh = new Mesh(geometry, material);
         mesh.name = "marker";
         mesh.scale.addScalar(1.5);
