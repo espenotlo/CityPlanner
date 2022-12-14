@@ -43,6 +43,7 @@ function initWorld() {
   let planeMat = new MeshPhongMaterial({ color: 0x806050 });
   planeMat.shininess = 0;
   plane = new Mesh(planeGeo, planeMat);
+  plane.name = "outOfBounds";
   plane.position.set(0, -1, 0);
   plane.castShadow = true;
   plane.receiveShadow = true;
@@ -547,7 +548,10 @@ function getLightIntensityAtSelectedPoint(){
   // get the luminance of the texture of the object at mouse position
   rayCaster.setFromCamera(mousePosition, camera);
   intersects = rayCaster.intersectObjects(scene.children, true);
-  if (intersects.length < 1) return;
+  if (intersects.length < 1 || intersects[0].object.name == "outOfBounds" || intersects[0].object.isSky) {
+    selectedPoint = null;
+    return;
+  };
   let color = intersects[0].object.material.color;
 
   let sourceLuminance =
