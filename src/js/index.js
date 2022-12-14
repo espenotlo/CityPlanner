@@ -411,11 +411,11 @@ function checkSkyExposure(event) {
   let building = null;
   for (let i = 0; i < intersects.length; i++) {
     if (intersects[i].object.name != "") {
-      building = intersects[i].object;
+      building = buildManager.map.get(intersects[i].object.name).cube;
+      break;
     }
   }
   if (building == null) return;
-  console.dir(building);
   showSkyExposure(buildManager.getSkyExposure(building));
 }
 

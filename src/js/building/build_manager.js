@@ -236,7 +236,6 @@ export class BuildManager {
                 direction.y = Math.sin(v);
                 raycaster.set(origin, direction.normalize());
                 intersects = raycaster.intersectObjects(buildmeshes, false);
-
                 if (intersects.length === 0) {
                     skyHits++;
                 }
