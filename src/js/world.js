@@ -91,17 +91,22 @@ export class World {
     parkMaterial.shininess = 0;
     let cellGeometry = new THREE.PlaneGeometry(10,10);
     let worldMeshes = [];
+    let name = "";
     for (let y = 0; y < this.size; y++) {
       for (let x = 0; x < this.size; x++) {
         let cellMaterial;
         if (this.isLot(x,y)) {
           cellMaterial = lotMaterial;
+          name = "lot";
         } else if (this.isRoad(x,y)) {
           cellMaterial = roadMaterial;
+          name = "road";
         } else {
           cellMaterial = parkMaterial;
+          name = "park";
         }
         let mesh = new THREE.Mesh(cellGeometry, cellMaterial);
+        mesh.name = name;
         mesh.receiveShadow = true;
         mesh.castShadow = true;
         mesh.position.x = (x*10) + this.posOffset;

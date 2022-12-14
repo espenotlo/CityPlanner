@@ -1,5 +1,6 @@
 import { Vector3, Raycaster, Mesh, BufferGeometry, BufferAttribute, MeshPhongMaterial, OneMinusDstAlphaFactor } from "three";
 import { World } from "../world.js";
+import { Building } from "./building.js";
 export class BuildManager {
     scene;
     world;
@@ -62,6 +63,32 @@ export class BuildManager {
         }
     }
 
+    addBuildingFromMesh(mesh, isLandmark) {
+        let x = [];
+        let y = [];
+        let z = [];
+        let array = mesh.geometry.attributes.position.array;
+        for (let i = 0; i < array.length; i++) {
+            //console.log(array[i]);
+            if (i%3 == 1) {
+                y.push(array[i]);
+            } else if (i%3 == 2) {
+                x.push(array[i]);
+            } else {
+                z.push(array[i]);
+            }
+        }
+        let width = Math.ceil((Math.max(...x) - Math.min(...x)) / 10);
+        let height = Math.ceil((Math.max(...y) - Math.min(...y)) / 10);
+        let depth = Math.ceil((Math.max(...z) - Math.min(...z)) / 10);
+        
+        const building = new Building(width, height, depth, mesh.material, isLandmark);
+
+        let buildingx = ((mesh.position.x - this.world.posOffset) / 10) - (width - 1) / 2;
+        let buildingy = ((mesh.position.z - this.world.posOffset) / 10) - (depth - 1) / 2;
+        this.addBuilding(building, buildingx, buildingy);
+    }
+
     removeBuilding(buildingID){
         const toBeRemoved = this.map.get(buildingID)
         if(toBeRemoved != null) {
@@ -76,6 +103,9 @@ export class BuildManager {
         }
     }
 
+    clearBuildings() {
+        for (let i = 1; i < this.index; i++) this.removeBuilding(i);
+    }
 
     occupyTile(positionX, positionY, width, depth, index) {
         for (let x = positionX; x < (positionX + width); x++){
@@ -124,6 +154,7 @@ export class BuildManager {
         geometry.setAttribute('position', new BufferAttribute(vertices, 3));
         const material = new MeshPhongMaterial( {color: 0x20ff20, shininess: 50, emissive: 0x008800} );
         const mesh = new Mesh(geometry, material);
+        mesh.name = "marker";
         mesh.scale.addScalar(1.5);
         return mesh;
     }

@@ -18,7 +18,7 @@ import {
 
 // Controller for index.html
 let camera, scene, renderer, heatmapCamera, heatmapRenderer;
-let sky, sun, sunlight, ambience, world, buildManager, plane;
+let sky, sun, sunlight, ambience, world, buildManager, earth, uniforms;
 let mousePosition, rayCaster;
 let intersects = [];
 let time = 8;
@@ -31,6 +31,7 @@ let selectedPoint = null;
 const container = document.getElementById("canvas");
 
 const worldCellGroup = new THREE.Group();
+worldCellGroup.name = "city";
 
 //link for downloading
 const link = document.createElement("a");
@@ -42,12 +43,12 @@ function initWorld() {
   planeGeo.scale(1, 0.0005, 1);
   let planeMat = new MeshPhongMaterial({ color: 0x806050 });
   planeMat.shininess = 0;
-  plane = new Mesh(planeGeo, planeMat);
-  plane.name = "outOfBounds";
-  plane.position.set(0, -1, 0);
-  plane.castShadow = true;
-  plane.receiveShadow = true;
-  scene.add(plane);
+  earth = new Mesh(planeGeo, planeMat);
+  earth.name = "earth";
+  earth.position.set(0, -1, 0);
+  earth.castShadow = true;
+  earth.receiveShadow = true;
+  scene.add(earth);
 
   world = new World(11);
   let worldCellMeshes = world.getCellMeshes();
@@ -84,11 +85,12 @@ function initSky() {
   // Add Sky
   sky = new Sky();
   sky.scale.setScalar(450000);
+  sky.name = "sky";
   scene.add(sky);
 
   sun = new THREE.Vector3();
   sunlight = new THREE.DirectionalLight(0xfffff0, 1);
-
+  sunlight.name = "sunlight";
   //Set up shadow properties for the light
   sunlight.castShadow = true;
   const d = 100;
@@ -102,11 +104,12 @@ function initSky() {
   sunlight.shadow.camera.far = 1000;
   scene.add(sunlight);
 
-  let sunlightHelper = new DirectionalLightHelper(sunlight);
-  scene.add(sunlightHelper);
+  //let sunlightHelper = new DirectionalLightHelper(sunlight);
+  //scene.add(sunlightHelper);
 
   //Global illumination
   ambience = new THREE.HemisphereLight(0xffffff, 0xffffff, 0.05);
+  ambience.name = "ambience";
   scene.add(ambience);
 
   // Sky controller:
@@ -126,7 +129,7 @@ function initSky() {
   };
 
   skyChanged = function () {
-    const uniforms = sky.material.uniforms;
+    uniforms = sky.material.uniforms;
     uniforms["turbidity"].value = effectController.turbidity;
     uniforms["rayleigh"].value = effectController.rayleigh;
     uniforms["mieCoefficient"].value = effectController.mieCoefficient;
@@ -173,8 +176,8 @@ function init() {
 
   scene = new THREE.Scene();
 
-  const helper = new THREE.GridHelper(110, 1, 0xffffff, 0xffffff);
-  scene.add(helper);
+  // const helper = new THREE.GridHelper(110, 1, 0xffffff, 0xffffff);
+  // scene.add(helper);
 
   renderer = new THREE.WebGLRenderer({
     preserveDrawingBuffer: true,
@@ -523,7 +526,28 @@ function loadFile() {
   let loader = new GLTFLoader();
   let url = URL.createObjectURL(file);
   loader.load(url, (gltf) => {
-    scene = gltf.scene;
+    buildManager.clearBuildings();
+    let hasLandmark = false;
+    gltf.scene.children.forEach(element => {
+      if (element.name === "marker") {
+        buildManager.landmarkMarker = element;
+        hasLandmark = true;
+      }
+    });
+    gltf.scene.children.forEach(element => {
+      if (element.name.match(/^[0-9]*$/g)) {
+        if (hasLandmark &&
+          element.position.x === buildManager.landmarkMarker.position.x && 
+          element.position.z === buildManager.landmarkMarker.position.z) {
+          buildManager.addBuildingFromMesh(element, true);
+        } else {
+          console.dir(buildManager.landmarkMarker);
+          console.dir(hasLandmark);
+          buildManager.addBuildingFromMesh(element, false);
+        }
+      }
+    });
+    console.dir(scene.children);
     renderer.render(scene, camera);
   });
 }
@@ -548,7 +572,7 @@ function getLightIntensityAtSelectedPoint(){
   // get the luminance of the texture of the object at mouse position
   rayCaster.setFromCamera(mousePosition, camera);
   intersects = rayCaster.intersectObjects(scene.children, true);
-  if (intersects.length < 1 || intersects[0].object.name == "outOfBounds" || intersects[0].object.isSky) {
+  if (intersects.length < 1 || intersects[0].object.name == "earth" || intersects[0].object.isSky) {
     selectedPoint = null;
     return;
   };
