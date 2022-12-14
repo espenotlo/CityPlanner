@@ -487,17 +487,16 @@ function selectLandmarkBox() {
 window.selectLandmarkBox = selectLandmarkBox;
 
 export function drawHeatmap() {
-// add the renderer to the page
+
   let canvasSize = 124;
-// render the scene
 
   heatmapRenderer.render(scene, heatmapCamera);
 
   let canvas = document.getElementById("heatmap")
   let context = canvas.getContext("2d")
-  let myGLcontext = heatmapRenderer.getContext();
+  let myGLContext = heatmapRenderer.getContext();
   let pixelData = new Uint8ClampedArray(canvasSize*canvasSize*4);
-  myGLcontext.readPixels( 0 , 0 , canvasSize , canvasSize , myGLcontext.RGBA , myGLcontext.UNSIGNED_BYTE , pixelData);
+  myGLContext.readPixels( 0 , 0 , canvasSize , canvasSize , myGLContext.RGBA , myGLContext.UNSIGNED_BYTE , pixelData);
   for (let i = 0; i<pixelData.length;i += 4){
     let illumination = (pixelData[i] + pixelData[i+1] + pixelData[i+2]) / 160
     pixelData[i] = Math.ceil(255*illumination)
@@ -505,7 +504,14 @@ export function drawHeatmap() {
     pixelData[i+2] = 0
     pixelData[i+3] = 200
   }
-  const imageData = new ImageData(pixelData, canvasSize,canvasSize )
+  let invertedData = new Uint8ClampedArray(canvasSize*canvasSize*4);
+  let rowSize = canvasSize*4
+  for (let row = 0; row< pixelData.length; row += rowSize){
+    for (let col = 0; col < rowSize; col += 4){
+      invertedData.set(pixelData.slice(row + col,row + col + 4), pixelData.length - row - rowSize + col);
+    }
+  }
+  const imageData = new ImageData(invertedData, canvasSize,canvasSize )
   context.putImageData(imageData,0,0)
 }
 
